@@ -5,7 +5,10 @@ import com.intezya.unihub.security.MaxBridgeValidator
 import com.intezya.unihub.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 data class MaxAuthRequest(
     val initData: String,
@@ -23,10 +26,10 @@ class AuthController(
     private val userService: UserService,
     private val maxBridgeValidator: MaxBridgeValidator,
     private val jwtService: JwtService,
-) {
+) : AuthApi {
 
     @PostMapping("/max")
-    fun authenticateWithMax(@RequestBody request: MaxAuthRequest): ResponseEntity<MaxAuthResponse> {
+    override fun authenticateWithMax(@RequestBody request: MaxAuthRequest): ResponseEntity<MaxAuthResponse> {
         // Валидируем initData
         val maxUserData = maxBridgeValidator.validateInitData(request.initData)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()

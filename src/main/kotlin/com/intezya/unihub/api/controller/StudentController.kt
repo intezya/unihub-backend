@@ -17,10 +17,10 @@ import java.util.*
 @RequireUserType(UserType.STUDENT, UserType.UNIVERSITY_ADMIN, UserType.ADMIN)
 class StudentController(
     private val studentService: StudentService,
-) {
+) : StudentApi {
 
     @GetMapping("/next-lesson")
-    fun getNextLesson(): NextLessonResponse {
+    override fun getNextLesson(): NextLessonResponse {
         val studentId = studentService.getCurrentStudentId()
         val lesson: Lesson? = studentService.getNextLessonForStudent(studentId)
 
@@ -52,19 +52,19 @@ class StudentController(
     }
 
     @GetMapping("/schedule")
-    fun getSchedule(): List<com.intezya.unihub.api.dto.ScheduleDto> {
+    override fun getSchedule(): List<com.intezya.unihub.api.dto.ScheduleDto> {
         val studentId = studentService.getCurrentStudentId()
         return studentService.getScheduleForStudentFormatted(studentId)
     }
 
     @GetMapping("/me")
-    fun getProfile(): StudentProfileDto {
+    override fun getProfile(): StudentProfileDto {
         val studentId = studentService.getCurrentStudentId()
         return studentService.getStudentProfile(studentId)
     }
 
     @GetMapping("/dashboard")
-    fun getDashboard(): StudentDashboardDto {
+    override fun getDashboard(): StudentDashboardDto {
         val studentId = studentService.getCurrentStudentId()
         return studentService.getStudentDashboard(studentId)
     }

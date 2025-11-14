@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RestController
 class ClubController(
     private val clubService: ClubService,
     private val studentService: StudentService,
-) {
+) : ClubApi {
 
     @GetMapping
-    fun getClubs(): List<ClubDto> {
+    override fun getClubs(): List<ClubDto> {
         val studentId = studentService.getCurrentStudentId()
         val studentProfile = studentService.getStudentProfile(studentId)
         return clubService.getClubsForUniversity(studentProfile.universityId)
     }
 
     @GetMapping("/{id}")
-    fun getClubById(@PathVariable id: Long): ClubDto? {
+    override fun getClubById(@PathVariable id: Long): ClubDto? {
         val studentId = studentService.getCurrentStudentId()
         val studentProfile = studentService.getStudentProfile(studentId)
         val clubs = clubService.getClubsForUniversity(studentProfile.universityId)

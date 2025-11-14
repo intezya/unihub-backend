@@ -14,17 +14,17 @@ import org.springframework.web.bind.annotation.*
 class CertificateController(
     private val certificateService: CertificateService,
     private val studentService: StudentService,
-) {
+) : CertificateApi {
 
     @GetMapping
-    fun getMyCertificates(): List<CertificateDto> {
+    override fun getMyCertificates(): List<CertificateDto> {
         val studentId = studentService.getCurrentStudentId()
         return certificateService.getStudentRequests(studentId)
             .map { CertificateDto.from(it) }
     }
 
     @PostMapping
-    fun createCertificateRequest(@RequestBody request: CreateCertificateRequestRequest): CertificateDto {
+    override fun createCertificateRequest(@RequestBody request: CreateCertificateRequestRequest): CertificateDto {
         val studentId = studentService.getCurrentStudentId()
         val certificateRequest = certificateService.createCertificateRequest(
             studentId = studentId,

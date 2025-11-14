@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/user")
 class UserController(
     private val userService: UserService,
-) {
+) : UserApi {
 
     @GetMapping("/me")
-    fun getMe(): UserMeDto {
+    override fun getMe(): UserMeDto {
         val auth = SecurityContextHolder.getContext().authentication
         if (auth is UserAuthentication) {
             return userService.getUserMeByUserId(auth.userId)
@@ -25,7 +25,7 @@ class UserController(
     }
 
     @GetMapping("/next-event")
-    fun getNextEvent(): NextEventDto? {
+    override fun getNextEvent(): NextEventDto? {
         val auth = SecurityContextHolder.getContext().authentication
         if (auth is UserAuthentication) {
             return userService.getNextEventByUserId(auth.userId)

@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RestController
 class NewsController(
     private val newsService: NewsService,
     private val studentService: StudentService,
-) {
+) : NewsApi {
 
     @GetMapping
-    fun getNews(): List<NewsDto> {
+    override fun getNews(): List<NewsDto> {
         val studentId = studentService.getCurrentStudentId()
         val studentProfile = studentService.getStudentProfile(studentId)
         return newsService.getRecentNewsForUniversity(studentProfile.universityId, 20)
     }
 
     @GetMapping("/{id}")
-    fun getNewsById(@PathVariable id: Long): NewsDto? {
+    override fun getNewsById(@PathVariable id: Long): NewsDto? {
         val studentId = studentService.getCurrentStudentId()
         val studentProfile = studentService.getStudentProfile(studentId)
         val newsList = newsService.getRecentNewsForUniversity(studentProfile.universityId, 100)

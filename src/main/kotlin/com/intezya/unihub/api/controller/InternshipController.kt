@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController
 class InternshipController(
     private val internshipService: InternshipService,
     private val studentService: StudentService,
-) {
+) : InternshipApi {
 
     @GetMapping
-    fun getInternships(): List<InternshipDto> {
+    override fun getInternships(): List<InternshipDto> {
         val studentId = studentService.getCurrentStudentId()
         val studentProfile = studentService.getStudentProfile(studentId)
         return internshipService.getInternshipsForUniversity(studentProfile.universityId)

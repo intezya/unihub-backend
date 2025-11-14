@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RestController
 class ProjectController(
     private val projectService: ProjectService,
     private val studentService: StudentService,
-) {
+) : ProjectApi {
 
     @GetMapping
-    fun getProjects(): List<ProjectDto> {
+    override fun getProjects(): List<ProjectDto> {
         val studentId = studentService.getCurrentStudentId()
         val studentProfile = studentService.getStudentProfile(studentId)
         return projectService.getProjectsForUniversity(studentProfile.universityId)
     }
 
     @GetMapping("/{id}")
-    fun getProjectById(@PathVariable id: Long): ProjectDto? {
+    override fun getProjectById(@PathVariable id: Long): ProjectDto? {
         val studentId = studentService.getCurrentStudentId()
         val studentProfile = studentService.getStudentProfile(studentId)
         val projects = projectService.getProjectsForUniversity(studentProfile.universityId)
