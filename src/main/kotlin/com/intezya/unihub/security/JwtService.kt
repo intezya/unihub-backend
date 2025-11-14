@@ -10,8 +10,8 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtService(
-    @Value("\${jwt.secret}") private val secret: String,
-    @Value("\${jwt.expiration:86400000}") private val expiration: Long = 86400000, // 24 часа
+    @field:Value("\${jwt.secret}") private val secret: String,
+    @field:Value("\${jwt.expiration:86400000}") private val expiration: Long = 86400000, // 24 часа
 ) {
 
     private val key: SecretKey by lazy {

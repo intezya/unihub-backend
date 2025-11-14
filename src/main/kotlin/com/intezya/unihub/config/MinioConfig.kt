@@ -12,11 +12,11 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class MinioConfig(
-    @Value("\${minio.endpoint}") private val endpoint: String,
-    @Value("\${minio.public-endpoint}") private val publicEndpoint: String,
-    @Value("\${minio.access-key}") private val accessKey: String,
-    @Value("\${minio.secret-key}") private val secretKey: String,
-    @Value("\${minio.bucket}") private val bucket: String,
+    @field:Value("\${minio.endpoint}") private val endpoint: String,
+    @field:Value("\${minio.public-endpoint}") private val publicEndpoint: String,
+    @field:Value("\${minio.access-key}") private val accessKey: String,
+    @field:Value("\${minio.secret-key}") private val secretKey: String,
+    @field:Value("\${minio.bucket}") private val bucket: String,
 ) {
 
     private val logger = LoggerFactory.getLogger(MinioConfig::class.java)

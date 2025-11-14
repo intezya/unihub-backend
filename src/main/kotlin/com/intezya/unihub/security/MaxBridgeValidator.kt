@@ -19,7 +19,7 @@ data class MaxUserData(
 
 @Component
 class MaxBridgeValidator(
-    @Value("\${max.bot.token}") private val botToken: String,
+    @field:Value("\${max.bot.token}") private val botToken: String,
 ) {
 
     fun validateInitData(initData: String): MaxUserData? {

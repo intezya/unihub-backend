@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 @Service
 class AvatarUrlService(
     @Qualifier("publicMinioClient") private val minioClient: MinioClient,
-    @Value("\${minio.bucket}") private val bucket: String,
+    @field:Value("\${minio.bucket}") private val bucket: String,
 ) {
 
     fun getAvatarUrl(userId: String): String {

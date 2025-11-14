@@ -12,7 +12,7 @@ import java.util.*
 @Service
 class FileUploadService(
     @Qualifier("minioClient") private val minioClient: MinioClient,
-    @Value("\${minio.bucket}") private val bucket: String,
+    @field:Value("\${minio.bucket}") private val bucket: String,
     private val avatarUrlService: AvatarUrlService,
 ) {
 
