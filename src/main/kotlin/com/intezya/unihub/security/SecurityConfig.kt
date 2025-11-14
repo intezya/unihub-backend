@@ -18,7 +18,7 @@ class SecurityConfig(
     fun filterChain(http: HttpSecurity): SecurityFilterChain = http
         .csrf { it.disable() }
         .cors { cors ->
-            cors.configurationSource { request ->
+            cors.configurationSource {
                 val config = CorsConfiguration()
                 config.allowedOrigins = listOf("*")
                 config.allowedMethods = listOf("*")
