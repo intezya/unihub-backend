@@ -33,7 +33,11 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
     runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
+    dependencies {
+        if (System.getenv("SPRING_PROFILES_ACTIVE") == "dev") {
+            runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
+        }
+    }
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
