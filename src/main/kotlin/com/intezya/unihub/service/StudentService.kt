@@ -11,7 +11,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.UUID
+import java.util.*
 
 @Service
 class StudentService(
@@ -89,6 +89,25 @@ class StudentService(
             .map { com.intezya.unihub.api.controller.LessonDto.from(it) }
     }
 
+    fun getScheduleForStudentFormatted(studentId: UUID): List<com.intezya.unihub.api.dto.ScheduleDto> {
+        val student = studentProfileRepository.findById(studentId).orElseThrow {
+            Errors.StudentProfile.notFound()
+        }
+        val schedule = student.schedule ?: return emptyList()
+        val today = LocalDate.now()
+
+        return lessonRepository.findAll()
+            .filter { it.schedule.id == schedule.id }
+            .sortedWith(compareBy({ it.dayOfWeek.ordinal }, { it.startTime }))
+            .map { lesson ->
+                // Вычисляем дату следующего занятия для этого дня недели
+                val offset = (lesson.dayOfWeek.ordinal - today.dayOfWeek.ordinal + 7) % 7
+                val lessonDate = if (offset == 0) today else today.plusDays(offset.toLong())
+
+                com.intezya.unihub.api.dto.ScheduleDto.from(lesson, lessonDate.toString())
+            }
+    }
+
     fun getStudentProfile(studentId: UUID): com.intezya.unihub.api.controller.StudentProfileDto {
         val student = studentProfileRepository.findById(studentId).orElseThrow {
             Errors.StudentProfile.notFound()
@@ -124,7 +143,7 @@ class StudentService(
                 lessonDate = lessonDate,
                 startsAt = startsAt,
                 startsInMinutes = startsInMinutes,
-                isToday = lessonDate == today,
+                isToday = lessonDate.isEqual(today),
             )
         } else {
             com.intezya.unihub.api.controller.NextLessonResponse(null, null, null, null, null)

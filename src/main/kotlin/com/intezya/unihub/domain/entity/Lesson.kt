@@ -34,4 +34,16 @@ class Lesson(
 
     @Column(name = "location", nullable = false)
     val location: String,
+
+    @Column(name = "lesson_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    val lessonType: LessonType = LessonType.LECTURE,
 )
+
+enum class LessonType(
+    val displayName: String,
+) {
+    LECTURE("Лекция"),
+    PRACTICE("Практика"),
+    SEMINAR("Семинар"),
+}

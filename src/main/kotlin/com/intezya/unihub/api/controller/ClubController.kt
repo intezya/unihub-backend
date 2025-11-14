@@ -1,11 +1,12 @@
 package com.intezya.unihub.api.controller
 
+import com.intezya.unihub.api.dto.ClubDto
 import com.intezya.unihub.domain.entity.UserType
 import com.intezya.unihub.security.RequireUserType
-import com.intezya.unihub.service.ClubDto
 import com.intezya.unihub.service.ClubService
 import com.intezya.unihub.service.StudentService
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -22,5 +23,13 @@ class ClubController(
         val studentId = studentService.getCurrentStudentId()
         val studentProfile = studentService.getStudentProfile(studentId)
         return clubService.getClubsForUniversity(studentProfile.universityId)
+    }
+
+    @GetMapping("/{id}")
+    fun getClubById(@PathVariable id: Long): ClubDto? {
+        val studentId = studentService.getCurrentStudentId()
+        val studentProfile = studentService.getStudentProfile(studentId)
+        val clubs = clubService.getClubsForUniversity(studentProfile.universityId)
+        return clubs.find { it.id == id }
     }
 }

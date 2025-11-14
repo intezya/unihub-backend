@@ -1,7 +1,3 @@
 databaseChangeLog:
   - includeAll:
       db/changelog/2025
-  - include:
-      file: db/changelog/2025/14-01-changelog.sql
-  - include:
-      file: db/changelog/2025/14-01-changelog.sql

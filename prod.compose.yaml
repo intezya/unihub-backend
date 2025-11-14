@@ -1,0 +1,123 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: unihub-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-unihub_db}
+      POSTGRES_USER: ${POSTGRES_USER:-unihub_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-unihub_password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h localhost || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - database
+
+  backend:
+    build: .
+    image: ghcr.io/intezya/unihub-backend:latest
+    container_name: unihub-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.unihub.rule=Host(`backend.hackathon-max.prod.stands.intezya.ru`)"
+      - "traefik.http.routers.unihub.entrypoints=websecure"
+      - "traefik.http.routers.unihub.tls.certresolver=letsencrypt"
+      - "traefik.http.services.unihub.loadbalancer.server.port=8080"
+
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-production}
+      - SMSC_APIKEY=${SMSC_APIKEY}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-unihub_db}
+      - POSTGRES_USER=${POSTGRES_USER:-unihub_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-unihub_password}
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_BUCKET=${MINIO_BUCKET:-unihub}
+    networks:
+      - traefik-public
+      - database
+      - s3
+
+  minio:
+    image: quay.io/minio/minio
+    command: server /data
+    container_name: unihub-minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9000/minio/health/ready || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio.rule=Host(`s3.hackathon-max.prod.stands.intezya.ru`)"
+      - "traefik.http.routers.minio.entrypoints=websecure"
+      - "traefik.http.routers.minio.tls.certresolver=letsencrypt"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+    networks:
+      - s3
+
+  frontend:
+    # TODO:
+    #    image: ghcr.io/???/???:latest
+    restart: unless-stopped
+    container_name: unihub-frontend
+    depends_on:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.unihub.rule=Host(`frontend.hackathon-max.prod.stands.intezya.ru`)"
+      - "traefik.http.routers.unihub.entrypoints=websecure"
+      - "traefik.http.routers.unihub.tls.certresolver=letsencrypt"
+      - "traefik.http.services.unihub.loadbalancer.server.port=80"
+    networks:
+      - traefik-public
+
+#TODO:
+#  watchtower:
+#    image: containrrr/watchtower:latest
+#    container_name: watchtower
+#    restart: unless-stopped
+#    environment:
+#      - WATCHTOWER_CLEANUP=true
+#      - WATCHTOWER_POLL_INTERVAL=60
+#      - WATCHTOWER_REGISTRY_AUTH=ghcr.io
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - ~/.docker/config.json:/config.json:ro
+#    command: skelly_backend x_port_frontend
+
+
+volumes:
+  postgres-data:
+    name: unihub_postgres_data
+  minio-data:
+    name: unihub_minio_data
+
+networks:
+  traefik-public:
+    external: true
+  application:
+    name: skelly_application_network
+    driver: bridge
+    internal: true

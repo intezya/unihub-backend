@@ -1,5 +1,6 @@
 package com.intezya.unihub.api.controller
 
+import com.intezya.unihub.api.dto.NewsDto
 import com.intezya.unihub.domain.entity.Lesson
 import com.intezya.unihub.domain.entity.UserType
 import com.intezya.unihub.security.RequireUserType
@@ -46,14 +47,14 @@ class StudentController(
             lessonDate = lessonDate,
             startsAt = startsAt,
             startsInMinutes = startsInMinutes,
-            isToday = lessonDate == today,
+            isToday = lessonDate.isEqual(today),
         )
     }
 
     @GetMapping("/schedule")
-    fun getSchedule(): List<LessonDto> {
+    fun getSchedule(): List<com.intezya.unihub.api.dto.ScheduleDto> {
         val studentId = studentService.getCurrentStudentId()
-        return studentService.getScheduleForStudent(studentId)
+        return studentService.getScheduleForStudentFormatted(studentId)
     }
 
     @GetMapping("/me")
@@ -116,13 +117,4 @@ data class StudentDashboardDto(
     val nextLesson: NextLessonResponse,
     val recentNews: List<NewsDto>,
     val activeCertificateRequests: Int,
-)
-
-data class NewsDto(
-    val id: UUID,
-    val title: String,
-    val content: String,
-    val imageUrl: String?,
-    val createdAt: String,
-    val publishedAt: String?,
 )

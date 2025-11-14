@@ -1,30 +1,44 @@
 package com.intezya.unihub.service
 
+import com.intezya.unihub.api.dto.ProjectDto
+import com.intezya.unihub.domain.entity.ProjectStatus
 import com.intezya.unihub.domain.repository.ProjectRepository
+import com.intezya.unihub.domain.repository.StudentProfileRepository
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class ProjectService(
     private val projectRepository: ProjectRepository,
-    private val avatarUrlService: AvatarUrlService,
+    private val studentProfileRepository: StudentProfileRepository,
 ) {
 
     fun getProjectsForUniversity(universityId: UUID): List<ProjectDto> =
         projectRepository.findByUniversityIdOrderByTitleAsc(universityId)
             .map { project ->
-                ProjectDto(
-                    id = project.id!!,
-                    title = project.title,
-                    description = project.description,
-                    imageUrl = project.imageObjectKey?.let { avatarUrlService.generatePresignedUrl(it) },
+                val authorName = try {
+                    val studentProfile = studentProfileRepository.findById(project.creator.id).orElse(null)
+                    if (studentProfile != null) {
+                        "${studentProfile.firstName} ${studentProfile.lastName}"
+                    } else {
+                        "Автор проекта"
+                    }
+                } catch (_: Exception) {
+                    "Автор проекта"
+                }
+
+                // Маппим статус на русский
+                val statusRu = when (project.status) {
+                    ProjectStatus.ACTIVE -> "Активен"
+                    ProjectStatus.RECRUITING -> "Набор"
+                    ProjectStatus.COMPLETED -> "Завершен"
+                }
+
+                ProjectDto.from(
+                    project = project,
+                    authorName = authorName,
+                    status = statusRu,
+                    category = project.category.displayName,
                 )
             }
 }
-
-data class ProjectDto(
-    val id: UUID,
-    val title: String,
-    val description: String,
-    val imageUrl: String?,
-)

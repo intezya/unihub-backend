@@ -1,5 +1,6 @@
 package com.intezya.unihub.service
 
+import com.intezya.unihub.api.dto.ClubDto
 import com.intezya.unihub.domain.repository.ClubRepository
 import org.springframework.stereotype.Service
 import java.util.*
@@ -13,18 +14,11 @@ class ClubService(
     fun getClubsForUniversity(universityId: UUID): List<ClubDto> =
         clubRepository.findByUniversityIdOrderByNameAsc(universityId)
             .map { club ->
-                ClubDto(
-                    id = club.id,
-                    name = club.name,
-                    description = club.description,
-                    imageUrl = club.imageObjectKey?.let { avatarUrlService.generatePresignedUrl(it) },
+                ClubDto.from(
+                    club = club,
+                    logoUrl = club.imageObjectKey?.let { avatarUrlService.generatePresignedUrl(it) },
+                    members = club.members.size,
+                    category = club.category.displayName,
                 )
             }
 }
-
-data class ClubDto(
-    val id: UUID,
-    val name: String,
-    val description: String,
-    val imageUrl: String?,
-)

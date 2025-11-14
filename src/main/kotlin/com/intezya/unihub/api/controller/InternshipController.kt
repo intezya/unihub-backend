@@ -1,8 +1,8 @@
 package com.intezya.unihub.api.controller
 
+import com.intezya.unihub.api.dto.InternshipDto
 import com.intezya.unihub.domain.entity.UserType
 import com.intezya.unihub.security.RequireUserType
-import com.intezya.unihub.service.InternshipDto
 import com.intezya.unihub.service.InternshipService
 import com.intezya.unihub.service.StudentService
 import org.springframework.web.bind.annotation.GetMapping

@@ -43,9 +43,6 @@ volumes:
   minio_data:
 
 networks:
-  application:
-    driver: bridge
-    external: false
   database:
     driver: bridge
     external: false

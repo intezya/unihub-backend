@@ -1,5 +1,6 @@
 package com.intezya.unihub.api.controller
 
+import com.intezya.unihub.api.dto.CertificateDto
 import com.intezya.unihub.domain.entity.CertificateRequestStatus
 import com.intezya.unihub.domain.entity.UserType
 import com.intezya.unihub.domain.repository.*
@@ -23,20 +24,20 @@ class AdminController(
     fun getCertificateRequests(
         @RequestParam universityId: UUID,
         @RequestParam(required = false) status: CertificateRequestStatus?,
-    ): List<CertificateRequestDto> {
+    ): List<CertificateDto> {
         val requests = if (status != null) {
             certificateRequestRepository.findByUniversityIdAndStatus(universityId, status)
         } else {
             certificateRequestRepository.findByUniversityIdOrderByCreatedAtDesc(universityId)
         }
-        return requests.map { CertificateRequestDto.from(it) }
+        return requests.map { CertificateDto.from(it) }
     }
 
     @PutMapping("/certificates/{id}")
     fun updateCertificateRequest(
         @PathVariable id: UUID,
         @RequestBody request: UpdateCertificateRequestRequest,
-    ): CertificateRequestDto {
+    ): CertificateDto {
         val certificateRequest = certificateRequestRepository.findById(id).orElseThrow {
             Errors.CertificateRequest.notFound()
         }
@@ -46,7 +47,7 @@ class AdminController(
             fileObjectKey = request.fileObjectKey ?: certificateRequest.fileObjectKey,
         )
 
-        return CertificateRequestDto.from(certificateRequestRepository.save(updated))
+        return CertificateDto.from(certificateRequestRepository.save(updated))
     }
 }
 

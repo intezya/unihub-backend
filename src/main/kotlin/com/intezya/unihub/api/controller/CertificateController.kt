@@ -1,13 +1,12 @@
 package com.intezya.unihub.api.controller
 
-import com.intezya.unihub.domain.entity.CertificateRequest
+import com.intezya.unihub.api.dto.CertificateDto
 import com.intezya.unihub.domain.entity.CertificateType
 import com.intezya.unihub.domain.entity.UserType
 import com.intezya.unihub.security.RequireUserType
 import com.intezya.unihub.service.CertificateService
 import com.intezya.unihub.service.StudentService
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 @RestController
 @RequestMapping("/api/student/certificates")
@@ -18,21 +17,21 @@ class CertificateController(
 ) {
 
     @GetMapping
-    fun getMyCertificates(): List<CertificateRequestDto> {
+    fun getMyCertificates(): List<CertificateDto> {
         val studentId = studentService.getCurrentStudentId()
         return certificateService.getStudentRequests(studentId)
-            .map { CertificateRequestDto.from(it) }
+            .map { CertificateDto.from(it) }
     }
 
     @PostMapping
-    fun createCertificateRequest(@RequestBody request: CreateCertificateRequestRequest): CertificateRequestDto {
+    fun createCertificateRequest(@RequestBody request: CreateCertificateRequestRequest): CertificateDto {
         val studentId = studentService.getCurrentStudentId()
         val certificateRequest = certificateService.createCertificateRequest(
             studentId = studentId,
             type = request.type,
             comment = request.comment,
         )
-        return CertificateRequestDto.from(certificateRequest)
+        return CertificateDto.from(certificateRequest)
     }
 }
 
@@ -40,23 +39,3 @@ data class CreateCertificateRequestRequest(
     val type: CertificateType,
     val comment: String?,
 )
-
-data class CertificateRequestDto(
-    val id: UUID,
-    val status: String,
-    val type: String,
-    val comment: String?,
-    val createdAt: String,
-    val processedAt: String?,
-) {
-    companion object {
-        fun from(request: CertificateRequest): CertificateRequestDto = CertificateRequestDto(
-            id = request.id,
-            status = request.status.name,
-            type = request.type.name,
-            comment = request.comment,
-            createdAt = request.createdAt.toString(),
-            processedAt = request.processedAt?.toString(),
-        )
-    }
-}
