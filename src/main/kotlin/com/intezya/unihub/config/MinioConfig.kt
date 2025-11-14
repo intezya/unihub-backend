@@ -38,7 +38,12 @@ class MinioConfig(
 
     @PostConstruct
     fun initializeBucket() {
-        val client = minioClient()
+        // Создаем отдельный клиент для инициализации, чтобы избежать циклической зависимости
+        val client = MinioClient.builder()
+            .endpoint(endpoint)
+            .credentials(accessKey, secretKey)
+            .build()
+
         try {
             val bucketExists = client.bucketExists(
                 BucketExistsArgs.builder()

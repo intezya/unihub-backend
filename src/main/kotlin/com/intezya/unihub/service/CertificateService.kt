@@ -14,7 +14,6 @@ import java.util.*
 class CertificateService(
     private val certificateRequestRepository: CertificateRequestRepository,
     private val studentProfileRepository: StudentProfileRepository,
-    private val avatarUrlService: AvatarUrlService,
 ) {
 
     fun createCertificateRequest(studentId: UUID, type: CertificateType, comment: String?): CertificateRequest {
