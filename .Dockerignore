@@ -1,0 +1,70 @@
+# Git
+.git
+.gitignore
+.gitattributes
+.github
+
+# Build
+build/
+target/
+out/
+*.jar
+*.war
+*.ear
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.metadata/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Documentation
+*.md
+!README.md
+docs/
+frontend/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+compose*.yaml
+.dockerignore
+
+# Environment
+.env
+.env.*
+*.local
+
+# Test
+src/test/
+*test/
+
+# Gradle
+.gradle/
+!gradle/
+gradle-wrapper.properties
+
+# Misc
+tmp/
+temp/
+*.tmp
+*.bak
+*.cache

@@ -99,6 +99,21 @@ services:
 #    container_name: watchtower
 #    restart: unless-stopped
 #    environment:
+
+volumes:
+  postgres-data:
+    driver: local
+  minio-data:
+    driver: local
+
+networks:
+  database:
+    driver: bridge
+  s3:
+    driver: bridge
+  traefik-public:
+    external: true
+
 #      - WATCHTOWER_CLEANUP=true
 #      - WATCHTOWER_POLL_INTERVAL=60
 #      - WATCHTOWER_REGISTRY_AUTH=ghcr.io
