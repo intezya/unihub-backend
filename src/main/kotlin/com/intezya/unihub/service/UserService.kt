@@ -1,5 +1,6 @@
 package com.intezya.unihub.service
 
+import com.intezya.unihub.api.dto.ChangeUserRoleResponse
 import com.intezya.unihub.api.dto.NextEventDto
 import com.intezya.unihub.api.dto.UserMeDto
 import com.intezya.unihub.domain.entity.User
@@ -139,5 +140,22 @@ class UserService(
 
         // Для других ролей можно вернуть null или реализовать другую логику
         return null
+    }
+
+    fun changeUserRole(userId: UUID, newRole: UserType): ChangeUserRoleResponse {
+        val user = userRepository.findById(userId).orElseThrow {
+            IllegalArgumentException("User not found with id: $userId")
+        }
+
+        val oldRole = user.userType
+        user.userType = newRole
+        userRepository.save(user)
+
+        return ChangeUserRoleResponse(
+            userId = userId.toString(),
+            oldRole = oldRole,
+            newRole = newRole,
+            message = "User role changed successfully from $oldRole to $newRole",
+        )
     }
 }

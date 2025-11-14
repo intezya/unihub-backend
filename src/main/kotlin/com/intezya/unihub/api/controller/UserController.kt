@@ -1,13 +1,13 @@
 package com.intezya.unihub.api.controller
 
+import com.intezya.unihub.api.dto.ChangeUserRoleRequest
+import com.intezya.unihub.api.dto.ChangeUserRoleResponse
 import com.intezya.unihub.api.dto.NextEventDto
 import com.intezya.unihub.api.dto.UserMeDto
 import com.intezya.unihub.security.UserAuthentication
 import com.intezya.unihub.service.UserService
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/user")
@@ -32,5 +32,11 @@ class UserController(
         }
 
         throw IllegalArgumentException("User not authenticated")
+    }
+
+    @PostMapping("/change-role")
+    fun changeUserRole(@RequestBody request: ChangeUserRoleRequest): ChangeUserRoleResponse {
+        val userId = java.util.UUID.fromString(request.userId)
+        return userService.changeUserRole(userId, request.newRole)
     }
 }

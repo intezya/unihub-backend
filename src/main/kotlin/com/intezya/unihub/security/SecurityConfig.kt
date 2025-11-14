@@ -7,8 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import org.springframework.web.filter.CorsFilter
 
 @Configuration
 @EnableWebSecurity
@@ -19,12 +17,24 @@ class SecurityConfig(
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain = http
         .csrf { it.disable() }
-        .cors { }
+        .cors { cors ->
+            cors.configurationSource { request ->
+                val config = CorsConfiguration()
+                config.allowedOrigins = listOf("*")
+                config.allowedMethods = listOf("*")
+                config.allowedHeaders = listOf("*")
+                config.exposedHeaders = listOf("*")
+                config.allowCredentials = false
+                config.maxAge = 3600L
+                config
+            }
+        }
         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter::class.java)
         .authorizeHttpRequests { auth ->
             auth
                 .requestMatchers(
                     "/auth/max",
+                    "/api/user/change-role",
                     "/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
@@ -32,18 +42,4 @@ class SecurityConfig(
                 .anyRequest().authenticated()
         }
         .build()
-
-    @Bean
-    fun corsFilter(): CorsFilter {
-        val config = CorsConfiguration()
-        config.allowCredentials = true
-        config.addAllowedOriginPattern("*")
-        config.addAllowedHeader("*")
-        config.addAllowedMethod("*")
-
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", config)
-
-        return CorsFilter(source)
-    }
 }
