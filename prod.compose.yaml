@@ -1,4 +1,66 @@
 services:
+  traefik:
+    image: traefik:v3.2
+    container_name: unihub-traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "127.0.0.1:8088:8088"
+    environment:
+      - TZ=Europe/Moscow
+      - ACME_EMAIL=${ACME_EMAIL:-admin@intezya.ru}
+    command:
+      - --log.level=INFO
+      - --accesslog=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=traefik-public
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@intezya.ru}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --ping=true
+      - --ping.entrypoint=web
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --entrypoints.traefik.address=:8088
+      - --accesslog.fields.defaultmode=keep
+      - --accesslog.fields.headers.defaultmode=drop
+      - --accesslog.fields.headers.names.Cookie=keep
+      - --accesslog.fields.headers.names.Set-Cookie=keep
+      - --accesslog.fields.headers.names.User-Agent=keep
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certificates:/letsencrypt
+    networks:
+      - traefik-public
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:80/ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   postgres:
     image: postgres:17-alpine
     container_name: unihub-postgres
@@ -43,6 +105,8 @@ services:
     container_name: unihub-backend
     restart: unless-stopped
     depends_on:
+      traefik:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       minio:
@@ -143,6 +207,9 @@ services:
     image: ghcr.io/kukushka-glitch/max-hack-front:latest
     container_name: unihub-frontend
     restart: unless-stopped
+    depends_on:
+      traefik:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/" ]
       interval: 30s
@@ -219,6 +286,9 @@ volumes:
     name: unihub_postgres_data
   minio-data:
     name: unihub_minio_data
+  traefik-certificates:
+    name: unihub_traefik_certificates
+    driver: local
 
 networks:
   database:
@@ -228,5 +298,5 @@ networks:
     driver: bridge
     name: unihub_s3_network
   traefik-public:
+    name: traefik-public
     driver: bridge
-    external: true
