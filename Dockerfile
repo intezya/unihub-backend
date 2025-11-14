@@ -3,7 +3,7 @@ FROM gradle:8.14.3-jdk21 AS builder
 WORKDIR /application
 
 # Кэшируем зависимости Gradle отдельно
-COPY build.gradle settings.gradle gradle.properties ./
+COPY build.gradle settings.gradle.kts ./
 COPY gradle ./gradle
 RUN gradle clean build -x test --no-daemon || true  # предварительная сборка для кэша зависимостей
 
