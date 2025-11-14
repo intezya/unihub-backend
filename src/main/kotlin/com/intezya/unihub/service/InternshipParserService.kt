@@ -33,11 +33,11 @@ class InternshipParserService(
             val parsedInternships = parsePostypashkiPage()
             logger.info("Parsed ${parsedInternships.size} internships from postypashki.ru")
 
-            // Получаем первого админа для creator_id (или создаем системного пользователя)
+            // Получаем первого пользователя для creator_id (опционально)
             val systemUser = userRepository.findAll().firstOrNull()
 
             parsedInternships.forEach { parsed ->
-                updateOrCreateInternship(parsed, systemUser?.id)
+                updateOrCreateInternship(parsed, systemUser)
             }
 
             logger.info("Successfully updated internships database")
@@ -89,7 +89,7 @@ class InternshipParserService(
         return result
     }
 
-    private fun updateOrCreateInternship(parsed: ParsedInternship, creatorId: java.util.UUID?) {
+    private fun updateOrCreateInternship(parsed: ParsedInternship, creator: com.intezya.unihub.domain.entity.User?) {
         // Ищем существующую стажировку по названию компании
         val existingInternships = internshipRepository.findAll()
         val existing = existingInternships.find { it.companyName == parsed.company }
@@ -112,7 +112,7 @@ class InternshipParserService(
                 isPaid = true,
                 startDate = LocalDate.now(),
                 endDate = LocalDate.now().plusMonths(6),
-                creator = creatorId?.let { userRepository.findById(it).orElse(null) },
+                creator = creator, // Может быть null для автоматически спарсенных стажировок
                 university = null, // Стажировки доступны всем университетам
             )
 

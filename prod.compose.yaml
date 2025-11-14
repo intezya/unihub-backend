@@ -288,7 +288,7 @@ volumes:
     name: unihub_minio_data
   traefik-certificates:
     name: unihub_traefik_certificates
-    driver: local
+    driver: bridge
 
 networks:
   database:

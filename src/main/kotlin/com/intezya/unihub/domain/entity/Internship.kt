@@ -12,7 +12,7 @@ class Internship(
     var id: UUID? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "university_id", nullable = false)
+    @JoinColumn(name = "university_id", nullable = true)
     var university: University? = null,
 
     @Column(name = "title", nullable = false)
@@ -50,7 +50,7 @@ class Internship(
     var direction: String? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id", nullable = false)
+    @JoinColumn(name = "creator_id", nullable = true)
     var creator: User? = null,
 )
 

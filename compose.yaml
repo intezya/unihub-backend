@@ -47,5 +47,5 @@ networks:
     driver: bridge
     external: false
   s3:
-    driver: local
+    driver: bridge
     external: false
