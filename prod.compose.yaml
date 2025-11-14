@@ -27,13 +27,12 @@ services:
       postgres:
         condition: service_healthy
     labels:
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-
       - "traefik.http.routers.unihub.rule=Host(`backend.hackathon-max.prod.stands.intezya.ru`)"
       - "traefik.http.routers.unihub.entrypoints=websecure"
       - "traefik.http.routers.unihub.tls.certresolver=letsencrypt"
       - "traefik.http.services.unihub.loadbalancer.server.port=8080"
-
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-production}
       - SMSC_APIKEY=${SMSC_APIKEY}
@@ -78,13 +77,13 @@ services:
       - s3
 
   frontend:
-    # TODO:
-    #    image: ghcr.io/???/???:latest
+    image: ghcr.io/kukushka-glitch/max-hack-front:latest
     restart: unless-stopped
     container_name: unihub-frontend
     depends_on:
       - backend
     labels:
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
       - "traefik.http.routers.unihub.rule=Host(`frontend.hackathon-max.prod.stands.intezya.ru`)"
       - "traefik.http.routers.unihub.entrypoints=websecure"
@@ -93,35 +92,23 @@ services:
     networks:
       - traefik-public
 
-#TODO:
-#  watchtower:
-#    image: containrrr/watchtower:latest
-#    container_name: watchtower
-#    restart: unless-stopped
-#    environment:
-
-volumes:
-  postgres-data:
-    driver: local
-  minio-data:
-    driver: local
-
-networks:
-  database:
-    driver: bridge
-  s3:
-    driver: bridge
-  traefik-public:
-    external: true
-
-#      - WATCHTOWER_CLEANUP=true
-#      - WATCHTOWER_POLL_INTERVAL=60
-#      - WATCHTOWER_REGISTRY_AUTH=ghcr.io
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - ~/.docker/config.json:/config.json:ro
-#    command: skelly_backend x_port_frontend
-
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=300
+      - WATCHTOWER_TIMEOUT=60s
+      - WATCHTOWER_ROLLING_RESTART=true
+      - WATCHTOWER_ROLLING_RESTART_COUNT=1
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_DEBUG=false
+      - WATCHTOWER_NO_STARTUP_MESSAGE=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik-public
 
 volumes:
   postgres-data:
@@ -130,9 +117,11 @@ volumes:
     name: unihub_minio_data
 
 networks:
+  database:
+    driver: bridge
+    name: unihub_database_network
+  s3:
+    driver: bridge
+    name: unihub_s3_network
   traefik-public:
     external: true
-  application:
-    name: skelly_application_network
-    driver: bridge
-    internal: true
