@@ -4,7 +4,8 @@ import jakarta.persistence.*
 import java.util.*
 
 @Entity
-data class Club(
+@Table(name = "clubs")
+class Club(
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     val id: UUID = UUID.randomUUID(),
@@ -15,10 +16,15 @@ data class Club(
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     val description: String,
 
-    @Column(name = "image_url")
-    val imageUrl: String? = null,
+    // Ключ изображения клуба в MinIO
+    @Column(name = "image_object_key")
+    val imageObjectKey: String? = null,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     val creator: User,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "university_id", nullable = false)
+    val university: University,
 )
