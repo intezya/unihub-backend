@@ -84,7 +84,7 @@ class StudentService(
         val schedule = student.schedule ?: return emptyList()
 
         return lessonRepository.findAll()
-            .filter { it.schedule.id == schedule.id }
+            .filter { it.schedule?.id == schedule.id }
             .sortedWith(compareBy({ it.dayOfWeek.ordinal }, { it.startTime }))
             .map { com.intezya.unihub.api.controller.LessonDto.from(it) }
     }
@@ -97,7 +97,7 @@ class StudentService(
         val today = LocalDate.now()
 
         return lessonRepository.findAll()
-            .filter { it.schedule.id == schedule.id }
+            .filter { it.schedule?.id == schedule.id }
             .sortedWith(compareBy({ it.dayOfWeek.ordinal }, { it.startTime }))
             .map { lesson ->
                 // Вычисляем дату следующего занятия для этого дня недели
