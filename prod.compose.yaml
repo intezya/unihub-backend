@@ -90,7 +90,7 @@ services:
       - "traefik.http.services.unihub.loadbalancer.server.port=80"
     networks:
       - traefik-public
-
+      -
   watchtower:
     image: containrrr/watchtower:latest
     container_name: unihub-watchtower
@@ -104,8 +104,10 @@ services:
       - WATCHTOWER_LABEL_ENABLE=true
       - WATCHTOWER_DEBUG=false
       - WATCHTOWER_NO_STARTUP_MESSAGE=false
+      - WATCHTOWER_REGISTRY_AUTH=ghcr.io
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ~/.docker/config.json:/config.json:ro
     networks:
       - traefik-public
 
