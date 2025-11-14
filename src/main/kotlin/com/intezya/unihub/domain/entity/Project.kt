@@ -34,6 +34,18 @@ class Project(
     @Column(name = "category", nullable = false)
     @Enumerated(EnumType.STRING)
     var category: ProjectCategory = ProjectCategory.IT,
+
+    @Column(name = "looking_for", columnDefinition = "TEXT")
+    var lookingFor: String? = null,
+
+    @Column(name = "contact_info")
+    var contactInfo: String? = null,
+
+    @Column(name = "created_at", nullable = false)
+    var createdAt: java.time.LocalDateTime = java.time.LocalDateTime.now(),
+
+    @OneToMany(mappedBy = "project", cascade = [CascadeType.ALL])
+    var applications: MutableList<ProjectApplication> = mutableListOf(),
 )
 
 enum class ProjectStatus {

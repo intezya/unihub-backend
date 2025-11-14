@@ -6,6 +6,29 @@ export interface User {
     avatar?: string;
 }
 
+// ============ МЕРОПРИЯТИЯ ============
+export interface Event {
+  id: number;
+  title: string;
+  description: string;
+  image?: string;
+  date: string;
+  location?: string;
+  maxParticipants?: number;
+  currentParticipants: number;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface EventRegistration {
+  id: number;
+  eventId: number;
+  studentName: string;
+  studentGroup: string;
+  studentNumber: string;
+  registeredAt: string;
+}
+
 export interface News {
   id: number;
   title: string;
@@ -24,14 +47,28 @@ export interface Club {
   category: string;
 }
 
+// ============ ПРОЕКТЫ ============
 export interface Project {
   id: number;
   title: string;
   description: string;
   author: string;
+  authorId: number;
   status: 'Активен' | 'Набор' | 'Завершен';
   category: string;
   createdAt: string;
+  lookingFor?: string; // Кого ищут в команду
+  contactInfo?: string;
+}
+
+export interface ProjectApplication {
+  id: number;
+  projectId: number;
+  applicantName: string;
+  applicantEmail: string;
+  experience: string;
+  appliedAt: string;
+  status: 'Новая' | 'Рассмотрена' | 'Принята' | 'Отклонена';
 }
 
 export interface Student {
@@ -53,6 +90,7 @@ export interface Schedule {
   date: string;
 }
 
+// ============ СТАЖИРОВКИ ============
 export interface Internship {
   id: number;
   company: string;
@@ -61,6 +99,10 @@ export interface Internship {
   duration: string;
   salary?: string;
   deadline: string;
+  logo?: string; // Логотип компании
+  status: 'Активна' | 'Закрыта' | 'Завершена';
+  externalUrl?: string; // Ссылка на сайт компании
+  direction?: string; // Направление (IT, Маркетинг и т.д.)
 }
 
 export interface Certificate {

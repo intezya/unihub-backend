@@ -162,3 +162,114 @@ export const certificateService = {
     return handleResponse<Certificate>(response);
   },
 };
+
+
+}
+  maxParticipants?: number;
+  location?: string;
+  date: string;
+  description: string;
+  title: string;
+export interface CreateEventRequest {
+
+}
+  contactInfo?: string;
+  lookingFor?: string;
+  category: string;
+  description: string;
+  title: string;
+export interface CreateProjectRequest {
+// ============ TYPES ============
+
+};
+  },
+    return handleResponse<EventRegistration[]>(response);
+    });
+      headers: getHeaders(),
+      method: 'GET',
+    const response = await fetch(`${API_BASE_URL}/api/admin/events/${eventId}/registrations`, {
+  getRegistrations: async (eventId: number): Promise<EventRegistration[]> => {
+
+  },
+    return handleResponse<Event[]>(response);
+    });
+      headers: getHeaders(),
+      method: 'GET',
+    const response = await fetch(`${API_BASE_URL}/api/admin/events`, {
+  getAll: async (): Promise<Event[]> => {
+
+  },
+    return handleResponse<Event>(response);
+    });
+      body: JSON.stringify(event),
+      headers: getHeaders(),
+      method: 'POST',
+    const response = await fetch(`${API_BASE_URL}/api/admin/events`, {
+  create: async (event: CreateEventRequest): Promise<Event> => {
+export const adminEventService = {
+// ============ ADMIN EVENTS SERVICE ============
+
+};
+  },
+    return handleResponse<ProjectApplication[]>(response);
+    });
+      headers: getHeaders(),
+      method: 'GET',
+    const response = await fetch(`${STUDENT_API_BASE}/projects/applications`, {
+  getApplicationsForMyProjects: async (): Promise<ProjectApplication[]> => {
+
+  },
+    return handleResponse<ProjectApplication[]>(response);
+    });
+      headers: getHeaders(),
+      method: 'GET',
+    const response = await fetch(`${STUDENT_API_BASE}/projects/my-applications`, {
+  getMyApplications: async (): Promise<ProjectApplication[]> => {
+
+  },
+    return handleResponse<ProjectApplication>(response);
+    });
+      body: JSON.stringify({ projectId, experience }),
+      headers: getHeaders(),
+      method: 'POST',
+    const response = await fetch(`${STUDENT_API_BASE}/projects/${projectId}/apply`, {
+  applyToProject: async (projectId: number, experience: string): Promise<ProjectApplication> => {
+
+  },
+    return handleResponse<Project>(response);
+    });
+      body: JSON.stringify(project),
+      headers: getHeaders(),
+      method: 'POST',
+    const response = await fetch(`${STUDENT_API_BASE}/projects`, {
+  create: async (project: CreateProjectRequest): Promise<Project> => {
+export const projectsEnhancedService = {
+// ============ PROJECTS ENHANCED SERVICE ============
+
+};
+  },
+    return handleResponse<EventRegistration>(response);
+    });
+      body: JSON.stringify({ eventId }),
+      headers: getHeaders(),
+      method: 'POST',
+    const response = await fetch(`${STUDENT_API_BASE}/events/${eventId}/register`, {
+  register: async (eventId: number): Promise<EventRegistration> => {
+
+  },
+    return handleResponse<Event>(response);
+    });
+      headers: getHeaders(),
+      method: 'GET',
+    const response = await fetch(`${STUDENT_API_BASE}/events/${id}`, {
+  getById: async (id: number): Promise<Event | undefined> => {
+
+  },
+    return handleResponse<Event[]>(response);
+    });
+      headers: getHeaders(),
+      method: 'GET',
+    const response = await fetch(`${STUDENT_API_BASE}/events`, {
+  getAll: async (): Promise<Event[]> => {
+export const eventService = {
+// ============ EVENTS SERVICE ============

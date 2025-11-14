@@ -36,7 +36,26 @@ class Internship(
     @Column(name = "is_paid")
     var isPaid: Boolean? = null,
 
+    @Column(name = "logo_url")
+    var logoUrl: String? = null,
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    var status: InternshipStatus = InternshipStatus.ACTIVE,
+
+    @Column(name = "external_url")
+    var externalUrl: String? = null,
+
+    @Column(name = "direction")
+    var direction: String? = null,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     var creator: User? = null,
 )
+
+enum class InternshipStatus {
+    ACTIVE, // Активна
+    CLOSED, // Закрыта
+    COMPLETED, // Завершена
+}

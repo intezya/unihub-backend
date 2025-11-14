@@ -1,7 +1,6 @@
 package com.intezya.unihub.service
 
 import com.intezya.unihub.api.dto.ProjectDto
-import com.intezya.unihub.domain.entity.ProjectStatus
 import com.intezya.unihub.domain.repository.ProjectRepository
 import com.intezya.unihub.domain.repository.StudentProfileRepository
 import org.springframework.stereotype.Service
@@ -29,18 +28,12 @@ class ProjectService(
                     "Автор проекта"
                 }
 
-                // Маппим статус на русский
-                val statusRu = when (project.status) {
-                    ProjectStatus.ACTIVE -> "Активен"
-                    ProjectStatus.RECRUITING -> "Набор"
-                    ProjectStatus.COMPLETED -> "Завершен"
-                }
+                val authorId = project.creator?.id?.hashCode()?.toLong() ?: 0L
 
                 ProjectDto.from(
                     project = project,
                     authorName = authorName,
-                    status = statusRu,
-                    category = project.category.displayName,
+                    authorId = authorId,
                 )
             }
 }
