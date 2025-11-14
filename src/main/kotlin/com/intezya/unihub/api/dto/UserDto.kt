@@ -3,6 +3,7 @@ package com.intezya.unihub.api.dto
 data class UserMeDto(
     val id: Long,
     val name: String,
+    val email: String,
     val role: String, // 'student' | 'teacher' | 'staff'
     val avatar: String?,
 )

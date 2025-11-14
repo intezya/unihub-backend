@@ -21,30 +21,53 @@ class UserService(
     private val lessonRepository: LessonRepository,
 ) {
 
-    fun register(userType: UserType, avatarUrl: String?): User {
-        val serviceId = UUID.randomUUID()
-        val user = User(
-            serviceId = serviceId,
-            userType = userType,
-            avatarUrl = avatarUrl,
-        )
-
-        return userRepository.save(user)
-    }
-
-    fun login(serviceId: UUID): User = userRepository.findByServiceId(serviceId).orElseThrow {
-        IllegalArgumentException("User not found")
-    }
-
     fun findByServiceId(serviceId: UUID): User? = userRepository.findByServiceId(serviceId).orElse(null)
 
-    fun getUserMe(serviceId: UUID): UserMeDto {
-        val user = userRepository.findByServiceId(serviceId).orElseThrow {
-            IllegalArgumentException("User not found")
+    fun findById(userId: UUID): User? = userRepository.findById(userId).orElse(null)
+
+    fun findOrCreateByMaxId(maxUserId: Long, firstName: String?, lastName: String?, photoUrl: String?): User {
+        // Ищем существующего пользователя
+        val existingUser = userRepository.findByMaxUserId(maxUserId).orElse(null)
+        if (existingUser != null) {
+            return existingUser
         }
 
+        // Создаем нового пользователя
+        val newUser = User(
+            serviceId = UUID.randomUUID(),
+            userType = UserType.STUDENT,
+            avatarUrl = photoUrl,
+            maxUserId = maxUserId,
+        )
+
+        val savedUser = userRepository.save(newUser)
+
+        // Создаем профиль студента
+        val studentProfile = com.intezya.unihub.domain.entity.StudentProfile(
+            id = savedUser.id,
+            user = savedUser,
+            firstName = firstName ?: "",
+            lastName = lastName ?: "",
+            studentNumber = maxUserId.toString(),
+            groupName = "",
+            direction = "",
+        )
+        studentProfileRepository.save(studentProfile)
+
+        return savedUser
+    }
+
+    fun getUserMeByUserId(userId: UUID): UserMeDto {
+        val user = userRepository.findById(userId).orElseThrow {
+            IllegalArgumentException("User not found")
+        }
+        return buildUserMeDto(user)
+    }
+
+    private fun buildUserMeDto(user: User): UserMeDto {
         val name: String
         val role: String
+        val email: String
 
         when (user.userType) {
             UserType.STUDENT -> {
@@ -55,32 +78,39 @@ class UserService(
                     "Student"
                 }
                 role = "student"
+                email = "student${user.maxUserId ?: user.id.hashCode()}@unihub.edu"
             }
 
             UserType.UNIVERSITY_ADMIN -> {
                 name = "Admin"
                 role = "staff"
+                email = "admin@unihub.edu"
             }
 
             UserType.ADMIN -> {
                 name = "Admin"
                 role = "staff"
+                email = "admin@unihub.edu"
             }
         }
 
         return UserMeDto(
             id = user.id.hashCode().toLong(),
             name = name,
+            email = email,
             role = role,
             avatar = user.avatarUrl,
         )
     }
 
-    fun getNextEvent(serviceId: UUID): NextEventDto? {
-        val user = userRepository.findByServiceId(serviceId).orElseThrow {
+    fun getNextEventByUserId(userId: UUID): NextEventDto? {
+        val user = userRepository.findById(userId).orElseThrow {
             IllegalArgumentException("User not found")
         }
+        return getNextEventForUser(user)
+    }
 
+    private fun getNextEventForUser(user: User): NextEventDto? {
         // Для студента возвращаем ближайшую пару
         if (user.userType == UserType.STUDENT) {
             val profile = studentProfileRepository.findById(user.id).orElse(null) ?: return null

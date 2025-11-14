@@ -19,6 +19,9 @@ data class User(
 
     @Column(name = "avatar_url", nullable = true)
     var avatarUrl: String? = null,
+
+    @Column(name = "max_user_id", nullable = true, unique = true)
+    var maxUserId: Long? = null,
 )
 
 enum class UserType {

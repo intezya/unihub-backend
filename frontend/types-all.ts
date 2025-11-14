@@ -1,3 +1,11 @@
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: 'student' | 'teacher' | 'staff';
+    avatar?: string;
+}
+
 export interface News {
   id: number;
   title: string;

@@ -1,4 +1,4 @@
-import type {News, Club, Project, Schedule, Internship, Certificate} from '../model';
+import type {News, Club, Project, Schedule, Internship, Certificate, User} from '../model';
 
 // ============ NEWS SERVICE ============
 let mockNews: News[] = [
@@ -236,4 +236,29 @@ export const certificateService = {
       }, 500);
     });
   },
+};
+
+const mockUser: User = {
+    id: 1,
+    name: 'Иван Иванов',
+    email: 'ivan.ivanov@university.ru',
+    role: 'student',
+    avatar: 'https://placehold.co/128x128',
+};
+
+export const userService = {
+    getCurrentUser: async (): Promise<User> => {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve({ ...mockUser }), 300);
+        });
+    },
+
+    setUserRole: async (role: 'student' | 'teacher' | 'staff'): Promise<User> => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                mockUser.role = role;
+                resolve({ ...mockUser });
+            }, 300);
+        });
+    },
 };

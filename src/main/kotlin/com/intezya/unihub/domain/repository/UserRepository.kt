@@ -8,4 +8,5 @@ import java.util.*
 @Repository
 interface UserRepository : JpaRepository<User, UUID> {
     fun findByServiceId(serviceId: UUID): Optional<User>
+    fun findByMaxUserId(maxUserId: Long): Optional<User>
 }

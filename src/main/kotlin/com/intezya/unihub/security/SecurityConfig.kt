@@ -24,8 +24,7 @@ class SecurityConfig(
         .authorizeHttpRequests { auth ->
             auth
                 .requestMatchers(
-                    "/auth/register",
-                    "/auth/login",
+                    "/auth/max",
                     "/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",

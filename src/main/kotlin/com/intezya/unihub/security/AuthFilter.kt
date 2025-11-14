@@ -8,25 +8,29 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.GenericFilterBean
-import java.util.*
 
 @Component
 class AuthFilter(
     private val userService: UserService,
+    private val jwtService: JwtService,
 ) : GenericFilterBean() {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val http = request as HttpServletRequest
 
-        val serviceId = http.cookies
-            ?.firstOrNull { it.name == "serviceId" }
-            ?.value
-
-        if (serviceId != null) {
-            val user = userService.findByServiceId(UUID.fromString(serviceId))
-            if (user != null) {
-                val auth = UserAuthentication(user)
-                SecurityContextHolder.getContext().authentication = auth
+        // Проверяем JWT токен из Authorization заголовка
+        val authHeader = http.getHeader("Authorization")
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            val token = authHeader.substring(7)
+            if (jwtService.validateToken(token)) {
+                val userId = jwtService.getUserIdFromToken(token)
+                if (userId != null) {
+                    val user = userService.findById(userId)
+                    if (user != null) {
+                        val auth = UserAuthentication(user)
+                        SecurityContextHolder.getContext().authentication = auth
+                    }
+                }
             }
         }
 
