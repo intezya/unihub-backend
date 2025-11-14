@@ -35,7 +35,6 @@ services:
       - "traefik.http.services.unihub.loadbalancer.server.port=8080"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-production}
-      - SMSC_APIKEY=${SMSC_APIKEY}
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_DB=${POSTGRES_DB:-unihub_db}
@@ -94,7 +93,7 @@ services:
 
   watchtower:
     image: containrrr/watchtower:latest
-    container_name: watchtower
+    container_name: unihub-watchtower
     restart: unless-stopped
     environment:
       - WATCHTOWER_CLEANUP=true
