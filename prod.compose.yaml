@@ -74,6 +74,7 @@ services:
       - "traefik.http.services.minio.loadbalancer.server.port=9000"
     networks:
       - s3
+      - traefik-public
 
   frontend:
     image: ghcr.io/kukushka-glitch/max-hack-front:latest
@@ -90,7 +91,7 @@ services:
       - "traefik.http.services.unihub.loadbalancer.server.port=80"
     networks:
       - traefik-public
-      -
+
   watchtower:
     image: containrrr/watchtower:latest
     container_name: unihub-watchtower
