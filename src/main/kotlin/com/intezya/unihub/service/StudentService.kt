@@ -119,8 +119,8 @@ class StudentService(
             studentNumber = student.studentNumber,
             groupName = student.groupName,
             direction = student.direction,
-            universityId = student.university.id,
-            universityName = student.university.name,
+            universityId = student.university?.id ?: throw Errors.StudentProfile.notFound(),
+            universityName = student.university?.name ?: "",
             scheduleId = student.schedule?.id,
         )
     }
@@ -149,7 +149,8 @@ class StudentService(
             com.intezya.unihub.api.controller.NextLessonResponse(null, null, null, null, null)
         }
 
-        val recentNews = newsService.getRecentNewsForUniversity(student.university.id, 5)
+        val recentNews =
+            newsService.getRecentNewsForUniversity(student.university?.id ?: throw Errors.StudentProfile.notFound(), 5)
         val activeCertificateRequests = certificateService.countActiveRequests(studentId)
 
         return com.intezya.unihub.api.controller.StudentDashboardDto(

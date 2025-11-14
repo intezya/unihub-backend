@@ -17,7 +17,9 @@ class ProjectService(
         projectRepository.findByUniversityIdOrderByTitleAsc(universityId)
             .map { project ->
                 val authorName = try {
-                    val studentProfile = studentProfileRepository.findById(project.creator.id).orElse(null)
+                    val studentProfile = project.creator?.id?.let { creatorId ->
+                        studentProfileRepository.findById(creatorId).orElse(null)
+                    }
                     if (studentProfile != null) {
                         "${studentProfile.firstName} ${studentProfile.lastName}"
                     } else {
