@@ -18,12 +18,6 @@ COPY --from=layers /application/snapshot-dependencies/ ./
 COPY --from=layers /application/application/ ./
 
 
-# Открываем порт
 EXPOSE 8080
 
-# Healthcheck для контейнера
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Запускаем приложение
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
