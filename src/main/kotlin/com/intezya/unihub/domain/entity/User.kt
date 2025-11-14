@@ -8,17 +8,17 @@ import java.util.*
 data class User(
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    val id: UUID = UUID.randomUUID(),
+    var id: UUID = UUID.randomUUID(),
 
     @Column(name = "service_id", nullable = false, unique = true)
-    val serviceId: UUID,
+    var serviceId: UUID = UUID.randomUUID(),
 
     @Column(name = "user_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    val userType: UserType,
+    var userType: UserType = UserType.STUDENT,
 
     @Column(name = "avatar_url", nullable = true)
-    val avatarUrl: String? = null,
+    var avatarUrl: String? = null,
 )
 
 enum class UserType {

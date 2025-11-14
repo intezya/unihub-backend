@@ -8,20 +8,20 @@ import java.util.*
 class Schedule(
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    val id: UUID = UUID.randomUUID(),
+    var id: UUID = UUID.randomUUID(),
 
     @Column(name = "name", nullable = false)
-    val name: String,
+    var name: String = "",
 
     // Вуз-владелец расписания
     @ManyToOne(fetch = FetchType.LAZY)
-    val university: University,
+    var university: University? = null,
 
     // Студенты, использующие это расписание
     @OneToMany(mappedBy = "schedule")
-    val studentProfiles: MutableList<StudentProfile> = mutableListOf(),
+    var studentProfiles: MutableList<StudentProfile> = mutableListOf(),
 
     // Конкретные пары в рамках этого расписания
     @OneToMany(mappedBy = "schedule")
-    val lessons: MutableList<Lesson> = mutableListOf(),
+    var lessons: MutableList<Lesson> = mutableListOf(),
 )

@@ -8,32 +8,32 @@ import java.util.*
 class Project(
     @GeneratedValue(strategy = GenerationType.UUID)
     @Id
-    val id: UUID? = null,
+    var id: UUID? = null,
 
     @JoinColumn(name = "creator_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    val creator: User,
+    var creator: User? = null,
 
     @Column(name = "image_object_key")
-    val imageObjectKey: String? = null,
+    var imageObjectKey: String? = null,
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
-    val description: String,
+    var description: String = "",
 
     @Column(name = "title", nullable = false)
-    val title: String,
+    var title: String = "",
 
     @JoinColumn(name = "university_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    val university: University,
+    var university: University? = null,
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    val status: ProjectStatus = ProjectStatus.ACTIVE,
+    var status: ProjectStatus = ProjectStatus.ACTIVE,
 
     @Column(name = "category", nullable = false)
     @Enumerated(EnumType.STRING)
-    val category: ProjectCategory = ProjectCategory.IT,
+    var category: ProjectCategory = ProjectCategory.IT,
 )
 
 enum class ProjectStatus {

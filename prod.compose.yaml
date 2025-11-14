@@ -26,13 +26,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-      - "traefik.http.routers.unihub.rule=Host(`backend.hackathon-max.prod.stands.intezya.ru`)"
-      - "traefik.http.routers.unihub.entrypoints=websecure"
-      - "traefik.http.routers.unihub.tls.certresolver=letsencrypt"
-      - "traefik.http.services.unihub.loadbalancer.server.port=8080"
+      - "traefik.http.routers.unihub-backend.rule=Host(`backend.hackathon-max.prod.stands.intezya.ru`)"
+      - "traefik.http.routers.unihub-backend.entrypoints=websecure"
+      - "traefik.http.routers.unihub-backend.tls=true"
+      - "traefik.http.routers.unihub-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.unihub-backend.loadbalancer.server.port=8080"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-production}
       - POSTGRES_HOST=postgres
@@ -51,7 +54,7 @@ services:
 
   minio:
     image: quay.io/minio/minio
-    command: server /data
+    command: server /data --address ":9000" --console-address ":9001"
     container_name: unihub-minio
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
@@ -68,10 +71,10 @@ services:
       retries: 5
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.minio.rule=Host(`s3.hackathon-max.prod.stands.intezya.ru`)"
-      - "traefik.http.routers.minio.entrypoints=websecure"
-      - "traefik.http.routers.minio.tls.certresolver=letsencrypt"
-      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      - "traefik.http.routers.unihub-minio.rule=Host(`s3.hackathon-max.prod.stands.intezya.ru`)"
+      - "traefik.http.routers.unihub-minio.entrypoints=websecure"
+      - "traefik.http.routers.unihub-minio.tls.certresolver=letsencrypt"
+      - "traefik.http.services.unihub-minio.loadbalancer.server.port=9000"
     networks:
       - s3
       - traefik-public
@@ -80,15 +83,13 @@ services:
     image: ghcr.io/kukushka-glitch/max-hack-front:latest
     restart: unless-stopped
     container_name: unihub-frontend
-    depends_on:
-      - backend
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-      - "traefik.http.routers.unihub.rule=Host(`frontend.hackathon-max.prod.stands.intezya.ru`)"
-      - "traefik.http.routers.unihub.entrypoints=websecure"
-      - "traefik.http.routers.unihub.tls.certresolver=letsencrypt"
-      - "traefik.http.services.unihub.loadbalancer.server.port=80"
+      - "traefik.http.routers.unihub-frontend.rule=Host(`frontend.hackathon-max.prod.stands.intezya.ru`)"
+      - "traefik.http.routers.unihub-frontend.entrypoints=websecure"
+      - "traefik.http.routers.unihub-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.unihub-frontend.loadbalancer.server.port=80"
     networks:
       - traefik-public
 
@@ -126,4 +127,5 @@ networks:
     driver: bridge
     name: unihub_s3_network
   traefik-public:
+    driver: bridge
     external: true

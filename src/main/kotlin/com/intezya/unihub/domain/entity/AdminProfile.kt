@@ -8,14 +8,14 @@ import java.util.*
 data class AdminProfile(
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    val id: UUID = UUID.randomUUID(),
+    var id: UUID = UUID.randomUUID(),
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id")
-    val user: User,
+    var user: User? = null,
 
     @ManyToOne
     @JoinColumn(name = "university_id")
-    val university: University,
+    var university: University? = null,
 )

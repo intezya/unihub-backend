@@ -8,33 +8,33 @@ import java.util.*
 data class StudentProfile(
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    val id: UUID = UUID.randomUUID(),
+    var id: UUID = UUID.randomUUID(),
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id")
-    val user: User,
+    var user: User? = null,
 
     @Column(name = "first_name", nullable = false)
-    val firstName: String,
+    var firstName: String = "",
 
     @Column(name = "last_name", nullable = false)
-    val lastName: String,
+    var lastName: String = "",
 
     @Column(name = "student_number", nullable = false, unique = true)
-    val studentNumber: String,
+    var studentNumber: String = "",
 
     @Column(name = "group_name", nullable = false)
-    val groupName: String,
+    var groupName: String = "",
 
     @Column(name = "direction", nullable = false)
-    val direction: String,
+    var direction: String = "",
 
     @ManyToOne
     @JoinColumn(name = "university_id")
-    val university: University,
+    var university: University? = null,
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")
-    val schedule: Schedule? = null,
+    var schedule: Schedule? = null,
 )

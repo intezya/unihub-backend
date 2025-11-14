@@ -10,34 +10,34 @@ import java.util.*
 class Lesson(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    val id: UUID? = null,
+    var id: UUID? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id", nullable = false)
-    val schedule: Schedule,
+    var schedule: Schedule? = null,
 
     @Column(name = "day_of_week", nullable = false)
     @Enumerated(EnumType.STRING)
-    val dayOfWeek: DayOfWeek,
+    var dayOfWeek: DayOfWeek = DayOfWeek.MONDAY,
 
     @Column(name = "start_time", nullable = false)
-    val startTime: LocalTime,
+    var startTime: LocalTime = LocalTime.now(),
 
     @Column(name = "end_time", nullable = false)
-    val endTime: LocalTime,
+    var endTime: LocalTime = LocalTime.now(),
 
     @Column(name = "subject", nullable = false)
-    val subject: String,
+    var subject: String = "",
 
     @Column(name = "teacher_name", nullable = false)
-    val teacherName: String,
+    var teacherName: String = "",
 
     @Column(name = "location", nullable = false)
-    val location: String,
+    var location: String = "",
 
     @Column(name = "lesson_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    val lessonType: LessonType = LessonType.LECTURE,
+    var lessonType: LessonType = LessonType.LECTURE,
 )
 
 enum class LessonType(

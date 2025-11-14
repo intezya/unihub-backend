@@ -9,43 +9,43 @@ import java.util.*
 class CertificateRequest(
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    val id: UUID = UUID.randomUUID(),
+    var id: UUID = UUID.randomUUID(),
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    val user: User,
+    var user: User? = null,
 
     @ManyToOne
     @JoinColumn(name = "student_profile_id", nullable = false)
-    val student: StudentProfile,
+    var student: StudentProfile? = null,
 
     @ManyToOne
     @JoinColumn(name = "university_id", nullable = false)
-    val university: University,
+    var university: University? = null,
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    val status: CertificateRequestStatus = CertificateRequestStatus.NEW,
+    var status: CertificateRequestStatus = CertificateRequestStatus.NEW,
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
-    val type: CertificateType = CertificateType.STUDY_CERTIFICATE,
+    var type: CertificateType = CertificateType.STUDY_CERTIFICATE,
 
     @Column(name = "comment")
-    val comment: String? = null,
+    var comment: String? = null,
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    var createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "processed_at")
-    val processedAt: LocalDateTime? = null,
+    var processedAt: LocalDateTime? = null,
 
     @ManyToOne
     @JoinColumn(name = "processed_by_admin_id")
-    val processedBy: AdminProfile? = null,
+    var processedBy: AdminProfile? = null,
 
     @Column(name = "file_object_key")
-    val fileObjectKey: String? = null,
+    var fileObjectKey: String? = null,
 ) {
     fun copy(
         status: CertificateRequestStatus = this.status,

@@ -11,11 +11,11 @@ import java.util.*
 data class University(
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    val id: UUID = UUID.randomUUID(),
+    var id: UUID = UUID.randomUUID(),
 
     @Column(name = "name", nullable = false)
-    val name: String,
+    var name: String = "",
 
     @Column(name = "address", nullable = false)
-    val address: String,
+    var address: String = "",
 )

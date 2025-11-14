@@ -9,34 +9,34 @@ import java.util.*
 class Internship(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    val id: UUID? = null,
+    var id: UUID? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "university_id", nullable = false)
-    val university: University,
+    var university: University? = null,
 
     @Column(name = "title", nullable = false)
-    val title: String,
+    var title: String = "",
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
-    val description: String,
+    var description: String = "",
 
     @Column(name = "company_name", nullable = false)
-    val companyName: String,
+    var companyName: String = "",
 
     @Column(name = "location")
-    val location: String? = null,
+    var location: String? = null,
 
     @Column(name = "start_date")
-    val startDate: LocalDate? = null,
+    var startDate: LocalDate? = null,
 
     @Column(name = "end_date")
-    val endDate: LocalDate? = null,
+    var endDate: LocalDate? = null,
 
     @Column(name = "is_paid")
-    val isPaid: Boolean? = null,
+    var isPaid: Boolean? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
-    val creator: User,
+    var creator: User? = null,
 )
