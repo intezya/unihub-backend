@@ -3,13 +3,14 @@ package com.intezya.unihub.service
 import io.minio.GetPresignedObjectUrlArgs
 import io.minio.MinioClient
 import io.minio.http.Method
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
 @Service
 class AvatarUrlService(
-    private val minioClient: MinioClient,
+    @Qualifier("publicMinioClient") private val minioClient: MinioClient,
     @Value("\${minio.bucket}") private val bucket: String,
 ) {
 

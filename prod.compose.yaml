@@ -47,8 +47,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-      minio-init:
-        condition: service_completed_successfully
     ports:
       - "127.0.0.1:8080:8080"
     labels:
@@ -70,6 +68,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-unihub_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-unihub_password}
       - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_PUBLIC_ENDPOINT=https://s3.hackathon-max.prod.stands.intezya.ru
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
       - MINIO_BUCKET=${MINIO_BUCKET:-unihub}
@@ -139,33 +138,6 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  minio-init:
-    image: minio/mc:latest
-    container_name: unihub-minio-init
-    depends_on:
-      minio:
-        condition: service_healthy
-    entrypoint: >
-      /bin/sh -c "
-      mc alias set minio http://minio:9000 ${MINIO_ACCESS_KEY:-minioadmin} ${MINIO_SECRET_KEY:-minioadmin};
-      if ! mc ls minio/${MINIO_BUCKET:-unihub} >/dev/null 2>&1; then
-        echo 'Creating bucket ${MINIO_BUCKET:-unihub}...';
-        mc mb minio/${MINIO_BUCKET:-unihub};
-        mc anonymous set download minio/${MINIO_BUCKET:-unihub};
-        echo 'Bucket created and policy set';
-      else
-        echo 'Bucket ${MINIO_BUCKET:-unihub} already exists';
-      fi;
-      exit 0;
-      "
-    networks:
-      - s3
-    restart: on-failure
-    deploy:
-      resources:
-        limits:
-          cpus: '0.1'
-          memory: 64M
 
   frontend:
     image: ghcr.io/kukushka-glitch/max-hack-front:latest
@@ -193,7 +165,7 @@ services:
       - "traefik.http.routers.unihub-frontend.rule=Host(`frontend.hackathon-max.prod.stands.intezya.ru`)"
       - "traefik.http.routers.unihub-frontend.entrypoints=websecure"
       - "traefik.http.routers.unihub-frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.unihub-frontend.loadbalancer.server.port=80"
+      - "traefik.http.services.unihub-frontend.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.unihub-frontend-compress.compress=true"
       - "traefik.http.middlewares.unihub-frontend-security.headers.stsSeconds=31536000"
       - "traefik.http.middlewares.unihub-frontend-security.headers.stsIncludeSubdomains=true"
