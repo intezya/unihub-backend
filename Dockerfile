@@ -2,17 +2,16 @@
 FROM gradle:8.14.3-jdk21 AS builder
 WORKDIR /app
 
-# Кэшируем зависимости Gradle
+# --- Кэшируем зависимости Gradle ---
 COPY build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
-# Сборка зависимостей без исходников и без bootJar
 RUN gradle build -x test -x bootJar --no-daemon
 
-# Копируем исходный код и собираем приложение
+# --- Копируем исходники и собираем bootJar ---
 COPY . .
-RUN gradle clean bootJar -x test --no-daemon
+RUN gradle bootJar -x test --no-daemon
 
-# === Layers extraction stage ===
+# === Layers extraction stage (для Spring Boot Layered jars) ===
 FROM bellsoft/liberica-openjre-debian:21.0.6 AS layers
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
@@ -22,11 +21,11 @@ RUN java -Djarmode=layertools -jar app.jar extract
 FROM bellsoft/liberica-openjre-debian:21.0.6
 WORKDIR /app
 
-# Пользователь для безопасности
+# Создаем непривилегированного пользователя
 RUN useradd -ms /bin/bash spring-user
 USER spring-user
 
-# Копируем только слои, которые нужны для runtime
+# Копируем слои
 COPY --from=layers /app/dependencies/ ./
 COPY --from=layers /app/spring-boot-loader/ ./
 COPY --from=layers /app/snapshot-dependencies/ ./
