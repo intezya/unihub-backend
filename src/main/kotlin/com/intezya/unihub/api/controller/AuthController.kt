@@ -31,8 +31,12 @@ class AuthController(
     @PostMapping("/max")
     override fun authenticateWithMax(@RequestBody request: MaxAuthRequest): ResponseEntity<MaxAuthResponse> {
         // Валидируем initData
+        println("Authenticating with initData: ${request.initData}")
+
         val maxUserData = maxBridgeValidator.validateInitData(request.initData)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+
+        println("Max user data: $maxUserData")
 
         // Находим или создаем пользователя
         val user = userService.findOrCreateByMaxId(
