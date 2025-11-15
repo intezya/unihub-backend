@@ -10,13 +10,5 @@ class UserTypeAspect {
 
     @Before("@annotation(requireUserType) || @within(requireUserType)")
     fun checkRole(requireUserType: RequireUserType) {
-//        val auth = SecurityContextHolder.getContext().authentication
-//            ?: throw IllegalAccessException("Unauthorized")
-//
-//        val user = auth.principal as com.intezya.unihub.domain.entity.User
-//
-//        if (user.userType !in requireUserType.value) {
-//            throw IllegalAccessException("Forbidden: insufficient permissions")
-//        }
     }
 }

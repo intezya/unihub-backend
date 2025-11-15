@@ -1,6 +1,7 @@
 package com.intezya.unihub.api.controller
 
 import com.intezya.unihub.api.dto.ClubDto
+import com.intezya.unihub.api.dto.CreateClubDto
 import com.intezya.unihub.domain.repository.ClubRepository
 import com.intezya.unihub.domain.repository.StudentProfileRepository
 import com.intezya.unihub.service.ClubService
@@ -26,5 +27,11 @@ class ClubController(
             ?: return null
         val clubs = clubService.getClubsForUniversity(actualUniversityId)
         return clubs.find { it.id == id }
+    }
+
+    @PostMapping
+    fun createClub(@RequestBody clubDto: CreateClubDto): ClubDto {
+        val club = clubService.create(clubDto)
+        return ClubDto.from(club, logoUrl = null)
     }
 }

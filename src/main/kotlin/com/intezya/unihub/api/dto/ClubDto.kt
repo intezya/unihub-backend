@@ -21,3 +21,10 @@ data class ClubDto(
         )
     }
 }
+
+data class CreateClubDto(
+    val name: String,
+    val description: String,
+    val logo: String?,
+    val category: String,
+)
