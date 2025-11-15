@@ -4,12 +4,14 @@ import com.intezya.unihub.api.dto.EventDto
 import com.intezya.unihub.api.dto.EventRegistrationDto
 import com.intezya.unihub.api.dto.RegisterForEventRequest
 import com.intezya.unihub.domain.entity.UserType
+import com.intezya.unihub.domain.repository.EventRepository
 import com.intezya.unihub.security.RequireUserType
 import com.intezya.unihub.security.UserAuthentication
 import com.intezya.unihub.service.EventService
 import com.intezya.unihub.service.StudentService
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import kotlin.random.Random
 
 @RestController
 @RequestMapping("/api/student/events")
@@ -17,13 +19,17 @@ import org.springframework.web.bind.annotation.*
 class EventController(
     private val eventService: EventService,
     private val studentService: StudentService,
+    private val eventRepository: EventRepository,
 ) : EventApi {
 
     @GetMapping
-    override fun getEvents(): List<EventDto> {
-        val studentId = studentService.getCurrentStudentId()
-        val studentProfile = studentService.getStudentProfile(studentId)
-        return eventService.getEventsForUniversity(studentProfile.universityId)
+    override fun getEvents(): List<EventDto> = eventRepository.findAll().map {
+        EventDto.from(
+            it,
+            imageUrl = null,
+            currentParticipants = Random.nextInt(0, 100),
+            creatorName = "Администрация",
+        )
     }
 
     @GetMapping("/{id}")

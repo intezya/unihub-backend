@@ -1,6 +1,7 @@
 package com.intezya.unihub.api.controller
 
 import com.intezya.unihub.api.dto.ClubDto
+import com.intezya.unihub.domain.repository.ClubRepository
 import com.intezya.unihub.domain.repository.StudentProfileRepository
 import com.intezya.unihub.service.ClubService
 import org.springframework.web.bind.annotation.*
@@ -11,15 +12,12 @@ import java.util.*
 class ClubController(
     private val clubService: ClubService,
     private val studentProfileRepository: StudentProfileRepository,
+    private val clubRepository: ClubRepository,
 ) : ClubApi {
 
     @GetMapping
-    override fun getClubs(@RequestParam(required = false) universityId: UUID?): List<ClubDto> {
-        val actualUniversityId = universityId
-            ?: studentProfileRepository.findAll().firstOrNull()?.university?.id
-            ?: return emptyList()
-        return clubService.getClubsForUniversity(actualUniversityId)
-    }
+    override fun getClubs(@RequestParam(required = false) universityId: UUID?): List<ClubDto> =
+        clubRepository.findAll().map { ClubDto.from(it, logoUrl = null) }
 
     @GetMapping("/{id}")
     override fun getClubById(@PathVariable id: Long, @RequestParam(required = false) universityId: UUID?): ClubDto? {

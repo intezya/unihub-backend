@@ -2,6 +2,7 @@ package com.intezya.unihub.api.controller
 
 import com.intezya.unihub.api.dto.CertificateDto
 import com.intezya.unihub.domain.entity.CertificateType
+import com.intezya.unihub.domain.repository.CertificateRequestRepository
 import com.intezya.unihub.domain.repository.StudentProfileRepository
 import com.intezya.unihub.service.CertificateService
 import org.springframework.web.bind.annotation.*
@@ -12,16 +13,12 @@ import java.util.*
 class CertificateController(
     private val certificateService: CertificateService,
     private val studentProfileRepository: StudentProfileRepository,
+    private val certificateRequestRepository: CertificateRequestRepository,
 ) : CertificateApi {
 
     @GetMapping
-    override fun getMyCertificates(@RequestParam(required = false) studentId: UUID?): List<CertificateDto> {
-        val actualStudentId = studentId
-            ?: studentProfileRepository.findAll().firstOrNull()?.id
-            ?: return emptyList()
-        return certificateService.getStudentRequests(actualStudentId)
-            .map { CertificateDto.from(it) }
-    }
+    override fun getMyCertificates(@RequestParam(required = false) studentId: UUID?): List<CertificateDto> =
+        certificateRequestRepository.findAll().map { CertificateDto.from(it) }
 
     @PostMapping
     override fun createCertificateRequest(
