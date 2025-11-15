@@ -5,6 +5,8 @@ import com.intezya.unihub.api.dto.CreateClubDto
 import com.intezya.unihub.domain.repository.ClubRepository
 import com.intezya.unihub.domain.repository.StudentProfileRepository
 import com.intezya.unihub.service.ClubService
+import com.intezya.unihub.service.FileUploadService
+import com.intezya.unihub.utils.error.NotFoundException
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
@@ -14,19 +16,22 @@ class ClubController(
     private val clubService: ClubService,
     private val studentProfileRepository: StudentProfileRepository,
     private val clubRepository: ClubRepository,
+    private val fileUploadService: FileUploadService,
 ) : ClubApi {
 
     @GetMapping
-    override fun getClubs(@RequestParam(required = false) universityId: UUID?): List<ClubDto> =
-        clubRepository.findAll().map { ClubDto.from(it, logoUrl = null) }
+    override fun getClubs(@RequestParam(required = false) universityId: UUID?): List<ClubDto> = clubRepository.findAll()
+        .map { ClubDto.from(it, logoUrl = it.imageObjectKey?.let { fileUploadService.getPublicUrl(it) }) }
 
     @GetMapping("/{id}")
     override fun getClubById(@PathVariable id: UUID, @RequestParam(required = false) universityId: UUID?): ClubDto? {
-        val actualUniversityId = universityId
-            ?: studentProfileRepository.findAll().firstOrNull()?.university?.id
-            ?: return null
-        val clubs = clubService.getClubsForUniversity(actualUniversityId)
-        return clubs.find { it.id == id.toString() }
+        val club = clubRepository.findById(id).orElseThrow {
+            NotFoundException("Club with id $id not found")
+        }
+
+        val logoUrl = club.imageObjectKey?.let { fileUploadService.getPublicUrl(it) }
+
+        return ClubDto.from(club, logoUrl = logoUrl)
     }
 
     @PostMapping

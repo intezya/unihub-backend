@@ -52,10 +52,8 @@ class StudentController(
     }
 
     @GetMapping("/schedule")
-    override fun getSchedule(): List<com.intezya.unihub.api.dto.ScheduleDto> {
-        val studentId = studentService.getCurrentStudentId()
-        return studentService.getScheduleForStudentFormatted(studentId)
-    }
+    override fun getSchedule(): List<com.intezya.unihub.api.dto.ScheduleDto> =
+        studentService.getScheduleForStudentFormatted()
 
     @GetMapping("/me")
     override fun getProfile(): StudentProfileDto {

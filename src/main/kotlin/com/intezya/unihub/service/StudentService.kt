@@ -89,15 +89,10 @@ class StudentService(
             .map { com.intezya.unihub.api.controller.LessonDto.from(it) }
     }
 
-    fun getScheduleForStudentFormatted(studentId: UUID): List<com.intezya.unihub.api.dto.ScheduleDto> {
-        val student = studentProfileRepository.findById(studentId).orElseThrow {
-            Errors.StudentProfile.notFound()
-        }
-        val schedule = student.schedule ?: return emptyList()
+    fun getScheduleForStudentFormatted(): List<com.intezya.unihub.api.dto.ScheduleDto> {
         val today = LocalDate.now()
 
         return lessonRepository.findAll()
-            .filter { it.schedule?.id == schedule.id }
             .sortedWith(compareBy({ it.dayOfWeek.ordinal }, { it.startTime }))
             .map { lesson ->
                 // Вычисляем дату следующего занятия для этого дня недели

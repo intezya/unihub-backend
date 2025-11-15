@@ -69,7 +69,7 @@ class FileUploadService(
         }
     }
 
-    private fun getPublicUrl(objectName: String): String {
+    fun getPublicUrl(objectName: String): String {
         // Для публичных bucket можно использовать прямую ссылку
         return avatarUrlService.generatePresignedUrl(objectName)
     }
