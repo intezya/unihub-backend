@@ -48,6 +48,7 @@ class UserService(
             )
 
             val savedUser = userRepository.save(newUser)
+            entityManager.flush()
 
             // Создаем профиль студента
             val studentProfile = com.intezya.unihub.domain.entity.StudentProfile(
@@ -59,7 +60,7 @@ class UserService(
                 groupName = "",
                 direction = "",
             )
-            entityManager.persist(studentProfile)
+            studentProfileRepository.save(studentProfile)
 
             return savedUser
         } catch (_: DataIntegrityViolationException) {
