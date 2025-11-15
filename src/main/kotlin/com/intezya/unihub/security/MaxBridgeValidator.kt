@@ -21,11 +21,9 @@ class MaxBridgeValidator {
     fun validateInitData(initData: String): MaxUserData? {
         try {
             val params = parseInitData(initData)
-            logger.warn("paramsing: $params")
 
             // Просто достаем данные юзера без валидации хеша
             val userJson = params["user"] ?: return null
-            logger.warn("user is $userJson")
             return parseUserData(userJson)
         } catch (e: Exception) {
             logger.error("Error parsing init data", e)

@@ -3,7 +3,7 @@ package com.intezya.unihub.api.dto
 import com.intezya.unihub.domain.entity.Club
 
 data class ClubDto(
-    val id: Long,
+    val id: String,
     val name: String,
     val description: String,
     val logo: String?,
@@ -12,7 +12,7 @@ data class ClubDto(
 ) {
     companion object {
         fun from(club: Club, logoUrl: String?, members: Int = 0, category: String = "Общий"): ClubDto = ClubDto(
-            id = club.id.hashCode().toLong(),
+            id = club.id.toString(),
             name = club.name,
             description = club.description,
             logo = logoUrl,

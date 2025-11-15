@@ -21,12 +21,12 @@ class ClubController(
         clubRepository.findAll().map { ClubDto.from(it, logoUrl = null) }
 
     @GetMapping("/{id}")
-    override fun getClubById(@PathVariable id: Long, @RequestParam(required = false) universityId: UUID?): ClubDto? {
+    override fun getClubById(@PathVariable id: UUID, @RequestParam(required = false) universityId: UUID?): ClubDto? {
         val actualUniversityId = universityId
             ?: studentProfileRepository.findAll().firstOrNull()?.university?.id
             ?: return null
         val clubs = clubService.getClubsForUniversity(actualUniversityId)
-        return clubs.find { it.id == id }
+        return clubs.find { it.id == id.toString() }
     }
 
     @PostMapping

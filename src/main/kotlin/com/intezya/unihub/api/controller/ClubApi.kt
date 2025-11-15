@@ -33,7 +33,7 @@ interface ClubApi {
         ],
     )
     fun getClubById(
-        @Parameter(description = "ID клуба") id: Long,
+        @Parameter(description = "ID клуба") id: UUID,
         @Parameter(description = "ID университета (опционально)") universityId: UUID?,
     ): ClubDto?
 }

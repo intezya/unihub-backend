@@ -42,6 +42,8 @@ class AuthController(
     override fun authenticateWithMax(@RequestBody request: MaxAuthRequest): ResponseEntity<MaxAuthResponse> {
         // Валидируем initData
         // Находим или создаем пользователя
+        println(request.initData)
+
         val maxUserData = maxBridgeValidator.validateInitData(request.initData)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
 
