@@ -22,6 +22,9 @@ data class User(
 
     @Column(name = "max_user_id", nullable = true, unique = true)
     var maxUserId: Long? = null,
+
+    @Column(name = "active", nullable = false)
+    var active: Boolean = true,
 )
 
 enum class UserType {

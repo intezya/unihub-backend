@@ -1,54 +1,50 @@
 package com.intezya.unihub.api.controller
 
-import com.intezya.unihub.api.dto.CertificateDto
+import com.intezya.unihub.api.dto.AdminUserDto
+import com.intezya.unihub.api.dto.ChangeRoleAdminRequest
 import com.intezya.unihub.domain.entity.CertificateRequestStatus
 import com.intezya.unihub.domain.entity.UserType
-import com.intezya.unihub.domain.repository.*
 import com.intezya.unihub.security.RequireUserType
-import com.intezya.unihub.utils.error.Errors
+import com.intezya.unihub.service.AdminService
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@RestController
 @RequestMapping("/api/admin")
 @RequireUserType(UserType.UNIVERSITY_ADMIN, UserType.ADMIN)
+@RestController
 class AdminController(
-    private val lessonRepository: LessonRepository,
-    private val newsRepository: NewsRepository,
-    private val certificateRequestRepository: CertificateRequestRepository,
-    private val clubRepository: ClubRepository,
-    private val scheduleRepository: ScheduleRepository,
+    private val adminService: AdminService,
 ) {
 
-    @GetMapping("/certificates")
-    fun getCertificateRequests(
-        @RequestParam universityId: UUID,
-        @RequestParam(required = false) status: CertificateRequestStatus?,
-    ): List<CertificateDto> {
-        val requests = if (status != null) {
-            certificateRequestRepository.findByUniversityIdAndStatus(universityId, status)
-        } else {
-            certificateRequestRepository.findByUniversityIdOrderByCreatedAtDesc(universityId)
-        }
-        return requests.map { CertificateDto.from(it) }
-    }
+    @PostMapping("/migrations/run")
+    fun runMigrations(): Map<String, String> = mapOf("result" to adminService.runMigrations())
 
-    @PutMapping("/certificates/{id}")
-    fun updateCertificateRequest(
-        @PathVariable id: UUID,
-        @RequestBody request: UpdateCertificateRequestRequest,
-    ): CertificateDto {
-        val certificateRequest = certificateRequestRepository.findById(id).orElseThrow {
-            Errors.CertificateRequest.notFound()
-        }
+    @GetMapping("/system/stats")
+    fun systemStats() = adminService.systemStats()
 
-        val updated = certificateRequest.copy(
-            status = request.status ?: certificateRequest.status,
-            fileObjectKey = request.fileObjectKey ?: certificateRequest.fileObjectKey,
-        )
+    @PostMapping("/reindex")
+    fun reindex(): Map<String, String> = mapOf("result" to adminService.reindex())
 
-        return CertificateDto.from(certificateRequestRepository.save(updated))
-    }
+    @PostMapping("/users/{id}/role")
+    fun changeUserRole(@PathVariable id: UUID, @RequestBody request: ChangeRoleAdminRequest): AdminUserDto =
+        adminService.changeRole(id, request.newRole)
+
+    @PostMapping("/users/{id}/activate")
+    fun activateUser(@PathVariable id: UUID): AdminUserDto = adminService.setActive(id, true)
+
+    @PostMapping("/users/{id}/deactivate")
+    fun deactivateUser(@PathVariable id: UUID): AdminUserDto = adminService.setActive(id, false)
+
+    @GetMapping("/users/{id}")
+    fun getUser(@PathVariable id: UUID): AdminUserDto = adminService.getUserById(id)
+
+    @GetMapping("/users")
+    fun listUsers(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(required = false) role: UserType?,
+        @RequestParam(required = false) active: Boolean?,
+    ) = adminService.listUsers(page, size, role, active)
 }
 
 data class UpdateCertificateRequestRequest(
