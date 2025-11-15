@@ -1,26 +1,26 @@
 package com.intezya.unihub.api.controller
 
 import com.intezya.unihub.api.dto.InternshipDto
-import com.intezya.unihub.domain.entity.UserType
-import com.intezya.unihub.security.RequireUserType
+import com.intezya.unihub.domain.repository.StudentProfileRepository
 import com.intezya.unihub.service.InternshipService
-import com.intezya.unihub.service.StudentService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @RestController
 @RequestMapping("/api/student/internships")
-@RequireUserType(UserType.STUDENT, UserType.UNIVERSITY_ADMIN, UserType.ADMIN)
 class InternshipController(
     private val internshipService: InternshipService,
-    private val studentService: StudentService,
+    private val studentProfileRepository: StudentProfileRepository,
 ) : InternshipApi {
 
     @GetMapping
-    override fun getInternships(): List<InternshipDto> {
-        val studentId = studentService.getCurrentStudentId()
-        val studentProfile = studentService.getStudentProfile(studentId)
-        return internshipService.getInternshipsForUniversity(studentProfile.universityId)
+    override fun getInternships(@RequestParam(required = false) universityId: UUID?): List<InternshipDto> {
+        val actualUniversityId = universityId
+            ?: studentProfileRepository.findAll().firstOrNull()?.university?.id
+            ?: return emptyList()
+        return internshipService.getInternshipsForUniversity(actualUniversityId)
     }
 }

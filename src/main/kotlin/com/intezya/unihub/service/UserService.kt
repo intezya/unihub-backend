@@ -8,7 +8,6 @@ import com.intezya.unihub.domain.entity.UserType
 import com.intezya.unihub.domain.repository.LessonRepository
 import com.intezya.unihub.domain.repository.StudentProfileRepository
 import com.intezya.unihub.domain.repository.UserRepository
-import jakarta.persistence.EntityManager
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,7 +22,6 @@ class UserService(
     private val userRepository: UserRepository,
     private val studentProfileRepository: StudentProfileRepository,
     private val lessonRepository: LessonRepository,
-    private val entityManager: EntityManager,
 ) {
 
     fun findByServiceId(serviceId: UUID): User? = userRepository.findByServiceId(serviceId).orElse(null)
@@ -48,7 +46,6 @@ class UserService(
             )
 
             val savedUser = userRepository.save(newUser)
-            entityManager.flush()
 
             // Создаем профиль студента
             val studentProfile = com.intezya.unihub.domain.entity.StudentProfile(

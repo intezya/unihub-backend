@@ -5,14 +5,11 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig(
-    private val authFilter: AuthFilter,
-) {
+class SecurityConfig {
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain = http
@@ -21,6 +18,7 @@ class SecurityConfig(
             cors.configurationSource {
                 val config = CorsConfiguration()
                 config.allowedOrigins = listOf("*")
+                config.allowedOriginPatterns = listOf("*")
                 config.allowedMethods = listOf("*")
                 config.allowedHeaders = listOf("*")
                 config.exposedHeaders = listOf("*")
@@ -29,17 +27,18 @@ class SecurityConfig(
                 config
             }
         }
-        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter::class.java)
+//        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter::class.java)
         .authorizeHttpRequests { auth ->
             auth
-                .requestMatchers(
-                    "/auth/**",
-                    "/api/user/change-role",
-                    "/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                ).permitAll()
-                .anyRequest().authenticated()
+//                .requestMatchers(
+//                    "/auth/**",
+//                    "/api/user/change-role",
+//                    "/api-docs/**",
+//                    "/swagger-ui/**",
+//                    "/swagger-ui.html",
+//                ).permitAll()
+//                .anyRequest().authenticated()
+                .anyRequest().permitAll()
         }
         .build()
 }

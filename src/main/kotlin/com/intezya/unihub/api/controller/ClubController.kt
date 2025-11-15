@@ -1,35 +1,32 @@
 package com.intezya.unihub.api.controller
 
 import com.intezya.unihub.api.dto.ClubDto
-import com.intezya.unihub.domain.entity.UserType
-import com.intezya.unihub.security.RequireUserType
+import com.intezya.unihub.domain.repository.StudentProfileRepository
 import com.intezya.unihub.service.ClubService
-import com.intezya.unihub.service.StudentService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/api/student/clubs")
-@RequireUserType(UserType.STUDENT)
 class ClubController(
     private val clubService: ClubService,
-    private val studentService: StudentService,
+    private val studentProfileRepository: StudentProfileRepository,
 ) : ClubApi {
 
     @GetMapping
-    override fun getClubs(): List<ClubDto> {
-        val studentId = studentService.getCurrentStudentId()
-        val studentProfile = studentService.getStudentProfile(studentId)
-        return clubService.getClubsForUniversity(studentProfile.universityId)
+    override fun getClubs(@RequestParam(required = false) universityId: UUID?): List<ClubDto> {
+        val actualUniversityId = universityId
+            ?: studentProfileRepository.findAll().firstOrNull()?.university?.id
+            ?: return emptyList()
+        return clubService.getClubsForUniversity(actualUniversityId)
     }
 
     @GetMapping("/{id}")
-    override fun getClubById(@PathVariable id: Long): ClubDto? {
-        val studentId = studentService.getCurrentStudentId()
-        val studentProfile = studentService.getStudentProfile(studentId)
-        val clubs = clubService.getClubsForUniversity(studentProfile.universityId)
+    override fun getClubById(@PathVariable id: Long, @RequestParam(required = false) universityId: UUID?): ClubDto? {
+        val actualUniversityId = universityId
+            ?: studentProfileRepository.findAll().firstOrNull()?.university?.id
+            ?: return null
+        val clubs = clubService.getClubsForUniversity(actualUniversityId)
         return clubs.find { it.id == id }
     }
 }
