@@ -25,7 +25,9 @@ class MaxBridgeValidator(
     fun validateInitData(initData: String): MaxUserData? {
         try {
             val params = parseInitData(initData)
+            println(params)
             val hash = params["hash"] ?: return null
+            println("received hash: $hash")
 
             // Формируем data_check_string
             val dataCheckString = params
@@ -34,16 +36,25 @@ class MaxBridgeValidator(
                 .map { "${it.key}=${it.value}" }
                 .joinToString("\n")
 
+            println("data_check_string: $dataCheckString")
+
             // Вычисляем секретный ключ
             val secretKey = sha256(botToken.toByteArray())
 
+            println("secret key: ${secretKey.joinToString("") { "%02x".format(it) }}")
+
             // Вычисляем HMAC-SHA256
             val calculatedHash = hmacSha256(dataCheckString.toByteArray(), secretKey)
+
+            println("calculated hash: $calculatedHash")
+            println("hashes equal: ${calculatedHash == hash}")
 
             // Сравниваем хэши
             if (calculatedHash != hash) {
                 return null
             }
+
+            println("user is ${params["user"]}")
 
             // Парсим данные пользователя
             val userJson = params["user"] ?: return null
