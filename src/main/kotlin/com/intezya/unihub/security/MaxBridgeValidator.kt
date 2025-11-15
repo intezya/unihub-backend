@@ -1,5 +1,6 @@
 package com.intezya.unihub.security
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.net.URLDecoder
@@ -21,11 +22,12 @@ data class MaxUserData(
 class MaxBridgeValidator(
     @Value("\${max.bot.token}") private val botToken: String,
 ) {
+    val logger = LoggerFactory.getLogger(this::class.java)
 
     fun validateInitData(initData: String): MaxUserData? {
         try {
             val params = parseInitData(initData)
-            println(params)
+            logger.warn("paramsing", params)
             val hash = params["hash"] ?: return null
             println("received hash: $hash")
 

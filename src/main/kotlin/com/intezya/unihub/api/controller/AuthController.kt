@@ -3,6 +3,7 @@ package com.intezya.unihub.api.controller
 import com.intezya.unihub.security.JwtService
 import com.intezya.unihub.security.MaxBridgeValidator
 import com.intezya.unihub.service.UserService
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -27,16 +28,17 @@ class AuthController(
     private val maxBridgeValidator: MaxBridgeValidator,
     private val jwtService: JwtService,
 ) : AuthApi {
+    val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping("/max")
     override fun authenticateWithMax(@RequestBody request: MaxAuthRequest): ResponseEntity<MaxAuthResponse> {
         // Валидируем initData
-        println("Authenticating with initData: ${request.initData}")
+        logger.warn("Authenticating with initData: ${request.initData}")
 
         val maxUserData = maxBridgeValidator.validateInitData(request.initData)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
 
-        println("Max user data: $maxUserData")
+        logger.warn("Max user data: $maxUserData")
 
         // Находим или создаем пользователя
         val user = userService.findOrCreateByMaxId(
