@@ -16,4 +16,9 @@ interface UserRepository : JpaRepository<User, UUID> {
     fun findAllByUserType(userType: UserType, pageable: Pageable): Page<User>
     fun findAllByActive(active: Boolean, pageable: Pageable): Page<User>
     fun findAllByUserTypeAndActive(userType: UserType, active: Boolean, pageable: Pageable): Page<User>
+
+    fun findAllByMaxUserId(maxUserId: Long, pageable: Pageable): Page<User>
+    fun findAllByMaxUserIdAndUserType(maxUserId: Long, userType: UserType, pageable: Pageable): Page<User>
+
+    fun countByUserType(userType: UserType): Long
 }

@@ -22,6 +22,13 @@ class AdminController(
     @GetMapping("/system/stats")
     fun systemStats() = adminService.systemStats()
 
+    // простой healthcheck для админки
+    @GetMapping("/health")
+    fun health(): Map<String, Any> = mapOf(
+        "status" to "OK",
+        "time" to System.currentTimeMillis(),
+    )
+
     @PostMapping("/reindex")
     fun reindex(): Map<String, String> = mapOf("result" to adminService.reindex())
 
@@ -45,6 +52,19 @@ class AdminController(
         @RequestParam(required = false) role: UserType?,
         @RequestParam(required = false) active: Boolean?,
     ) = adminService.listUsers(page, size, role, active)
+
+    // поиск пользователей по maxUserId и/или роли
+    @GetMapping("/users/search")
+    fun searchUsers(
+        @RequestParam(required = false) maxUserId: Long?,
+        @RequestParam(required = false) role: UserType?,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int,
+    ) = adminService.searchUsers(maxUserId, role, page, size)
+
+    // базовая статистика по пользователям
+    @GetMapping("/stats/users")
+    fun userStats() = adminService.userStats()
 }
 
 data class UpdateCertificateRequestRequest(

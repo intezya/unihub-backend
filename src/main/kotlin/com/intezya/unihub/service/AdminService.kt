@@ -28,6 +28,18 @@ class AdminService(
         return pageResult.map { AdminUserDto.from(it) }
     }
 
+    // поиск по maxUserId и/или роли
+    fun searchUsers(maxUserId: Long?, role: UserType?, page: Int, size: Int): Page<AdminUserDto> {
+        val pageable: Pageable = PageRequest.of(page, size)
+        val pageResult: Page<User> = when {
+            maxUserId != null && role != null -> userRepository.findAllByMaxUserIdAndUserType(maxUserId, role, pageable)
+            maxUserId != null -> userRepository.findAllByMaxUserId(maxUserId, pageable)
+            role != null -> userRepository.findAllByUserType(role, pageable)
+            else -> userRepository.findAll(pageable)
+        }
+        return pageResult.map { AdminUserDto.from(it) }
+    }
+
     fun getUserById(id: UUID): AdminUserDto {
         val user = userRepository.findById(id).orElseThrow { Errors.User.notFound() }
         return AdminUserDto.from(user)
@@ -43,19 +55,29 @@ class AdminService(
     @Transactional
     fun changeRole(id: UUID, newRole: UserType): AdminUserDto {
         val user = userRepository.findById(id).orElseThrow { Errors.User.notFound() }
-        // Prevent downgrading or other policy checks can be added here
         val updated = user.copy(userType = newRole)
         return AdminUserDto.from(userRepository.save(updated))
     }
 
-    // Placeholder for reindexing — should call real search service
-    fun reindex(): String {
-        // trigger search reindexing workflow here
-        return "reindex-triggered"
+    // продуктовая статистика по пользователям
+    fun userStats(): Map<String, Any> {
+        val total = userRepository.count()
+        val students = userRepository.countByUserType(UserType.STUDENT)
+        val admins = userRepository.countByUserType(UserType.ADMIN)
+        val uniAdmins = userRepository.countByUserType(UserType.UNIVERSITY_ADMIN)
+
+        return mapOf(
+            "total" to total,
+            "students" to students,
+            "admins" to admins,
+            "universityAdmins" to uniAdmins,
+        )
     }
 
+    // Placeholder for reindexing  should call real search service
+    fun reindex(): String = "reindex-triggered"
+
     fun systemStats(): Map<String, Any> {
-        // minimal stats
         val runtime = Runtime.getRuntime()
         return mapOf(
             "availableProcessors" to runtime.availableProcessors(),
@@ -65,9 +87,5 @@ class AdminService(
         )
     }
 
-    // Placeholder for migrations trigger
-    fun runMigrations(): String {
-        // call Flyway/Liquibase bean if available
-        return "migrations-triggered"
-    }
+    fun runMigrations(): String = "migrations-triggered"
 }
