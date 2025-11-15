@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
@@ -31,7 +30,6 @@ class MaxBridgeValidator(
             val receivedHash = params["hash"] ?: return null
             println("received hash: $receivedHash")
 
-            // Формируем data_check_string
             val dataCheckString = params
                 .filter { it.key != "hash" }
                 .toSortedMap()
@@ -39,11 +37,9 @@ class MaxBridgeValidator(
                 .joinToString("\n")
             println("data_check_string: $dataCheckString")
 
-            // Вычисляем секретный ключ (SHA256 от токена)
-            val secretKey = sha256(botToken.toByteArray())
+            val secretKey = hmacSha256("WebAppData".toByteArray(Charsets.UTF_8), botToken.toByteArray(Charsets.UTF_8))
             println("secret key: ${secretKey.joinToString("") { "%02x".format(it) }}")
 
-            // Вычисляем HMAC-SHA256
             val calculatedHash = hmacSha256Hex(dataCheckString.toByteArray(Charsets.UTF_8), secretKey)
             println("calculated hash: $calculatedHash")
             println("hashes equal: ${calculatedHash == receivedHash}")
@@ -88,13 +84,15 @@ class MaxBridgeValidator(
         )
     }
 
-    private fun sha256(data: ByteArray): ByteArray = MessageDigest.getInstance("SHA-256").digest(data)
-
-    private fun hmacSha256Hex(data: ByteArray, key: ByteArray): String {
+    private fun hmacSha256(data: ByteArray, key: ByteArray): ByteArray {
         val mac = Mac.getInstance("HmacSHA256")
         val secretKey = SecretKeySpec(key, "HmacSHA256")
         mac.init(secretKey)
-        val result = mac.doFinal(data)
+        return mac.doFinal(data)
+    }
+
+    private fun hmacSha256Hex(data: ByteArray, key: ByteArray): String {
+        val result = hmacSha256(data, key)
         return result.joinToString("") { "%02x".format(it) }
     }
 }
