@@ -1,5 +1,10 @@
 package com.intezya.unihub.api.controller
 
+import com.intezya.unihub.domain.entity.StudentProfile
+import com.intezya.unihub.domain.entity.User
+import com.intezya.unihub.domain.entity.UserType
+import com.intezya.unihub.domain.repository.StudentProfileRepository
+import com.intezya.unihub.domain.repository.UserRepository
 import com.intezya.unihub.security.JwtService
 import com.intezya.unihub.security.MaxBridgeValidator
 import com.intezya.unihub.service.UserService
@@ -10,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 data class MaxAuthRequest(
     val initData: String,
@@ -27,26 +33,40 @@ class AuthController(
     private val userService: UserService,
     private val maxBridgeValidator: MaxBridgeValidator,
     private val jwtService: JwtService,
+    private val userRepository: UserRepository,
+    private val studentProfileRepository: StudentProfileRepository,
 ) : AuthApi {
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping("/max")
     override fun authenticateWithMax(@RequestBody request: MaxAuthRequest): ResponseEntity<MaxAuthResponse> {
         // Валидируем initData
-        logger.warn("Authenticating with initData: ${request.initData}")
-
+        // Находим или создаем пользователя
         val maxUserData = maxBridgeValidator.validateInitData(request.initData)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
 
-        logger.warn("Max user data: $maxUserData")
-
-        // Находим или создаем пользователя
-        val user = userService.findOrCreateByMaxId(
-            maxUserId = maxUserData.id,
-            firstName = maxUserData.firstName,
-            lastName = maxUserData.lastName,
-            photoUrl = maxUserData.photoUrl,
-        )
+        val user: User = try {
+            val newUser = userRepository.save(
+                User(
+                    serviceId = UUID.randomUUID(),
+                    userType = UserType.STUDENT,
+                    avatarUrl = maxUserData.photoUrl,
+                    maxUserId = maxUserData.id,
+                ),
+            )
+            val profile = StudentProfile(
+                user = newUser,
+                firstName = maxUserData.firstName ?: "",
+                lastName = maxUserData.lastName ?: "",
+                studentNumber = maxUserData.id.toString(),
+                groupName = "",
+                direction = "",
+            )
+            studentProfileRepository.save(profile)
+            newUser
+        } catch (e: Exception) {
+            userRepository.findByMaxUserId(maxUserData.id).orElseThrow()
+        }
 
         // Генерируем JWT токен
         val token = jwtService.generateToken(user.id, maxUserData.id)
