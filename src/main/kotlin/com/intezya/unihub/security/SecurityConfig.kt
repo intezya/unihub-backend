@@ -33,7 +33,7 @@ class SecurityConfig(
         .authorizeHttpRequests { auth ->
             auth
                 .requestMatchers(
-                    "/auth/max",
+                    "/auth/**",
                     "/api/user/change-role",
                     "/api-docs/**",
                     "/swagger-ui/**",

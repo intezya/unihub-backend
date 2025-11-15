@@ -8,7 +8,9 @@ import com.intezya.unihub.domain.entity.UserType
 import com.intezya.unihub.domain.repository.LessonRepository
 import com.intezya.unihub.domain.repository.StudentProfileRepository
 import com.intezya.unihub.domain.repository.UserRepository
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -26,6 +28,7 @@ class UserService(
 
     fun findById(userId: UUID): User? = userRepository.findById(userId).orElse(null)
 
+    @Transactional
     fun findOrCreateByMaxId(maxUserId: Long, firstName: String?, lastName: String?, photoUrl: String?): User {
         // Ищем существующего пользователя
         val existingUser = userRepository.findByMaxUserId(maxUserId).orElse(null)
@@ -34,28 +37,36 @@ class UserService(
         }
 
         // Создаем нового пользователя
-        val newUser = User(
-            serviceId = UUID.randomUUID(),
-            userType = UserType.STUDENT,
-            avatarUrl = photoUrl,
-            maxUserId = maxUserId,
-        )
+        try {
+            val newUser = User(
+                serviceId = UUID.randomUUID(),
+                userType = UserType.STUDENT,
+                avatarUrl = photoUrl,
+                maxUserId = maxUserId,
+            )
 
-        val savedUser = userRepository.save(newUser)
+            val savedUser = userRepository.save(newUser)
 
-        // Создаем профиль студента
-        val studentProfile = com.intezya.unihub.domain.entity.StudentProfile(
-            id = savedUser.id,
-            user = savedUser,
-            firstName = firstName ?: "",
-            lastName = lastName ?: "",
-            studentNumber = maxUserId.toString(),
-            groupName = "",
-            direction = "",
-        )
-        studentProfileRepository.save(studentProfile)
+            // Создаем профиль студента
+            val studentProfile = com.intezya.unihub.domain.entity.StudentProfile(
+                id = savedUser.id,
+                user = savedUser,
+                firstName = firstName ?: "",
+                lastName = lastName ?: "",
+                studentNumber = maxUserId.toString(),
+                groupName = "",
+                direction = "",
+            )
+            studentProfileRepository.save(studentProfile)
 
-        return savedUser
+            return savedUser
+        } catch (_: DataIntegrityViolationException) {
+            // Если произошла ошибка дублирования, значит пользователь был создан между проверкой и insert
+            // Повторно ищем пользователя
+            return userRepository.findByMaxUserId(maxUserId).orElseThrow {
+                IllegalStateException("User with maxUserId=$maxUserId should exist but not found")
+            }
+        }
     }
 
     fun getUserMeByUserId(userId: UUID): UserMeDto {

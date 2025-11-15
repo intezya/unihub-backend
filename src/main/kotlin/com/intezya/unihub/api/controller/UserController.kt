@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/user", "/user")
 class UserController(
     private val userService: UserService,
 ) : UserApi {

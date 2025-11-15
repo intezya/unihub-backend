@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 /**
  * Global exception handler for all REST controllers
@@ -88,9 +89,24 @@ class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse)
     }
 
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFound(ex: NoResourceFoundException, request: WebRequest): ResponseEntity<ErrorResponse> {
+        logger.warn("Resource not found: ${ex.resourcePath}")
+
+        val errorResponse = ErrorResponse(
+            status = HttpStatus.NOT_FOUND.value(),
+            error = HttpStatus.NOT_FOUND.reasonPhrase,
+            message = "Resource not found: ${ex.resourcePath}",
+            errorCode = "NOT_FOUND",
+            path = request.getDescription(false).removePrefix("uri="),
+        )
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception, request: WebRequest): ResponseEntity<ErrorResponse> {
-        logger.error("Unexpected exception: ${ex.message}", ex)
+        logger.error("Unexpected exception: ${ex.javaClass.simpleName} - ${ex.message}")
 
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
