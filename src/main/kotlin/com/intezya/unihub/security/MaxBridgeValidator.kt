@@ -22,14 +22,14 @@ data class MaxUserData(
 class MaxBridgeValidator(
     @Value("\${max.bot.token}") private val botToken: String,
 ) {
-    val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun validateInitData(initData: String): MaxUserData? {
         try {
             val params = parseInitData(initData)
-            logger.warn("paramsing", params)
-            val hash = params["hash"] ?: return null
-            println("received hash: $hash")
+            logger.warn("paramsing: $params")
+            val receivedHash = params["hash"] ?: return null
+            println("received hash: $receivedHash")
 
             // Формируем data_check_string
             val dataCheckString = params
@@ -37,29 +37,21 @@ class MaxBridgeValidator(
                 .toSortedMap()
                 .map { "${it.key}=${it.value}" }
                 .joinToString("\n")
-
             println("data_check_string: $dataCheckString")
 
-            // Вычисляем секретный ключ
+            // Вычисляем секретный ключ (SHA256 от токена)
             val secretKey = sha256(botToken.toByteArray())
-
             println("secret key: ${secretKey.joinToString("") { "%02x".format(it) }}")
 
             // Вычисляем HMAC-SHA256
-            val calculatedHash = hmacSha256(dataCheckString.toByteArray(), secretKey)
-
+            val calculatedHash = hmacSha256Hex(dataCheckString.toByteArray(Charsets.UTF_8), secretKey)
             println("calculated hash: $calculatedHash")
-            println("hashes equal: ${calculatedHash == hash}")
+            println("hashes equal: ${calculatedHash == receivedHash}")
 
-            // Сравниваем хэши
-            if (calculatedHash != hash) {
-                return null
-            }
+            if (calculatedHash != receivedHash) return null
 
-            println("user is ${params["user"]}")
-
-            // Парсим данные пользователя
             val userJson = params["user"] ?: return null
+            println("user is $userJson")
             return parseUserData(userJson)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -75,7 +67,6 @@ class MaxBridgeValidator(
     }
 
     private fun parseUserData(userJson: String): MaxUserData {
-        // Простой парсинг JSON (можно использовать Jackson для более надежного парсинга)
         val userMap = userJson
             .removePrefix("{")
             .removeSuffix("}")
@@ -97,12 +88,9 @@ class MaxBridgeValidator(
         )
     }
 
-    private fun sha256(data: ByteArray): ByteArray {
-        val digest = MessageDigest.getInstance("SHA-256")
-        return digest.digest(data)
-    }
+    private fun sha256(data: ByteArray): ByteArray = MessageDigest.getInstance("SHA-256").digest(data)
 
-    private fun hmacSha256(data: ByteArray, key: ByteArray): String {
+    private fun hmacSha256Hex(data: ByteArray, key: ByteArray): String {
         val mac = Mac.getInstance("HmacSHA256")
         val secretKey = SecretKeySpec(key, "HmacSHA256")
         mac.init(secretKey)
